@@ -1,0 +1,27 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+Registrar Ingreso | FRATERNITAS ERP
+{% endblock %}
+
+{% block content %}
+
+<h1>Registrar Ingreso</h1>
+
+<p>Captura de ingresos del sistema.</p>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+
+        Guardar ingreso
+
+    </button>
+
+</form>
+
+{% endblock %}
