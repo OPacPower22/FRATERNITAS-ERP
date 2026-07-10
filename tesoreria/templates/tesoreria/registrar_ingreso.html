@@ -1,27 +1,49 @@
 {% extends "base/base.html" %}
 
 {% block title %}
-Registrar Ingreso | FRATERNITAS ERP
+Registrar Ingreso
 {% endblock %}
 
 {% block content %}
 
-<h1>Registrar Ingreso</h1>
+<div class="card">
 
-<p>Captura de ingresos del sistema.</p>
+    <h2>Registrar ingreso</h2>
 
-<form method="post">
+    <p>Captura de ingresos.</p>
 
-    {% csrf_token %}
+    <form method="post">
 
-    {{ form.as_p }}
+        {% csrf_token %}
 
-    <button type="submit">
+        <div class="form-grid">
 
-        Guardar ingreso
+            {{ form.as_p }}
 
-    </button>
+        </div>
 
-</form>
+        <div class="actions">
+
+            <button
+                type="reset"
+                class="btn-secondary">
+
+                Cancelar
+
+            </button>
+
+            <button
+                type="submit"
+                class="btn-primary">
+
+                Guardar ingreso
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
 
 {% endblock %}
