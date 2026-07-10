@@ -26,11 +26,6 @@ class Movimiento(models.Model):
 
     fecha = models.DateField()
 
-    descripcion = models.CharField(
-        max_length=255,
-        blank=True,
-    )
-
     capitas = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -66,15 +61,25 @@ class Movimiento(models.Model):
         decimal_places=2,
     )
 
-    justificacion = models.CharField(
-        max_length=255,
+    observaciones = models.TextField(
         blank=True,
+        verbose_name="Observaciones",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        self.total = (
+            self.capitas
+            + self.aniversario
+            + self.saco_beneficencia
+            + self.taller_bj
+            + self.otros
+        )
+        super().save(*args, **kwargs)
+    
     class Meta:
         ordering = ["-fecha", "-id"]   
 

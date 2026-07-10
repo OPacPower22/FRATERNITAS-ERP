@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from .models import Movimiento
 
@@ -13,11 +14,32 @@ class MovimientoIngresoForm(forms.ModelForm):
             "recibo",
             "hermano",
             "concepto",
-            "descripcion",
             "capitas",
             "aniversario",
             "saco_beneficencia",
             "taller_bj",
             "otros",
-            "justificacion",
+            "observaciones",
         )
+
+        labels = {
+            "taller_bj": "Taller AJEF",
+            "concepto": "Concepto Contable",
+            "recibo": "Número de Recibo",
+            "observaciones": "Observaciones",
+        }
+
+        widgets = {
+            "fecha": forms.DateInput(
+                attrs={
+                    "type": "date",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        if not self.instance.pk:
+            self.fields["fecha"].initial = timezone.localdate() 

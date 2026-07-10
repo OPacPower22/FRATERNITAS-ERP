@@ -13,8 +13,8 @@ class MovimientoAdmin(admin.ModelAdmin):
                 "hermano",
                 "fecha",
                 "concepto",
-                "descripcion",
-            )
+                "observaciones",
+                            )
         }),
 
         ("Distribución del ingreso / egreso", {

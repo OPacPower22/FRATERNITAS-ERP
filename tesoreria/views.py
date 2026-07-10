@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .forms import MovimientoIngresoForm
+
 
 def index(request):
     return render(
@@ -11,7 +12,23 @@ def index(request):
 
 def registrar_ingreso(request):
 
-    form = MovimientoIngresoForm()
+    if request.method == "POST":
+
+        form = MovimientoIngresoForm(request.POST)
+
+        if form.is_valid():
+
+            movimiento = form.save(commit=False)
+
+            movimiento.tipo = "I"
+
+            movimiento.save()
+
+            return redirect("tesoreria")
+
+    else:
+
+        form = MovimientoIngresoForm()
 
     return render(
         request,
