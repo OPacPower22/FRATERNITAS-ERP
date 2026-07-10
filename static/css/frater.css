@@ -1,0 +1,79 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.card{
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    box-shadow:0 3px 12px rgba(0,0,0,.15);
+
+    margin-bottom:25px;
+
+}
+
+.card h2{
+
+    color:#6B0000;
+
+    margin-top:0;
+
+}
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:18px;
+
+}
+
+.form-full{
+
+    grid-column:1 / -1;
+
+}
+
+.actions{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    margin-top:25px;
+
+}
+
+button{
+
+    padding:10px 20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+.btn-primary{
+
+    background:#6B0000;
+
+    color:white;
+
+}
+
+.btn-secondary{
+
+    background:#bdbdbd;
+
+}
