@@ -1,84 +1,140 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
+
 <head>
-    {% load static %}
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FRATERNITAS ERP{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/frater.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
+    <title>
+        {% block title %}
+        Sistema de Gestión Administrativa
+        {% endblock %}
+    </title>
 
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            background:#f5f5f5;
-        }
+    <!-- Bootstrap 5.3 -->
 
-        header{
-            background:#5B0000;
-            color:white;
-            padding:15px 25px;
-            font-size:24px;
-            font-weight:bold;
-        }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
-        nav{
-            width:240px;
-            background:#212121;
-            color:white;
-            position:fixed;
-            top:58px;
-            bottom:0;
-            left:0;
-            padding-top:20px;
-        }
+    <!-- Bootstrap Icons -->
 
-        nav a{
-            display:block;
-            color:white;
-            text-decoration:none;
-            padding:12px 20px;
-        }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+          rel="stylesheet">
 
-        nav a:hover{
-            background:#C60800;
-        }
+    <!-- CSS propio -->
 
-        main{
-            margin-left:260px;
-            padding:30px;
-        }
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-    </style>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
 
 </head>
 
 <body>
 
-<header>
+<header class="shadow-sm">
 
-    FRATERNITAS ERP
+    <div class="container py-4">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-2 text-center">
+
+                <img src="{% static 'img/escudo.png' %}"
+                     class="logo-principal"
+                     alt="Escudo">
+
+            </div>
+
+            <div class="col-md-7 text-center">
+
+                <h5 class="mb-1 titulo-logia">
+                   DIG∴ RESP∴ ABN∴ Y SESQUICENT∴<br>
+                                    LOG∴ SIMB∴
+                </h5>
+
+                <h2 class="nombre-logia">
+                    FRATERNIDAD No. 1
+                </h2>
+
+                <h6 class="subtitulo">
+                    Sistema de Gestión Administrativa
+                </h6>
+
+            </div>
+
+            <div class="col-md-3 text-end datos-usuario">
+
+                <strong>{{ request.user }}</strong><br>
+
+                    <span id="fecha"></span>
+
+                    <br>
+
+                    <span id="hora"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </header>
 
-<nav>
+<main class="container my-5">
 
-    <a href="#">Dashboard</a>
-    <a href="#">Tesorería</a>
-    <a href="#">Contabilidad</a>
-    <a href="#">Miembros</a>
-    <a href="#">Reportes</a>
-
-</nav>
-
-<main>
-
-{% block content %}
-
-{% endblock %}
+    {% block content %}
+    {% endblock %}
 
 </main>
 
+<footer>
+
+    <div class="container text-center py-3">
+
+        © 2026
+        Respetable Logia Simbólica Fraternidad No. 1
+
+        <br>
+
+        <small>
+
+            FRATERNITAS-ERP · MVP 0.1
+
+        </small>
+
+    </div>
+
+</footer>
+
+<script>
+
+function actualizarFechaHora(){
+
+    const ahora = new Date();
+
+    document.getElementById("fecha").innerHTML =
+        ahora.toLocaleDateString('es-MX',{
+            weekday:'long',
+            day:'numeric',
+            month:'long',
+            year:'numeric'
+        });
+
+    document.getElementById("hora").innerHTML =
+        ahora.toLocaleTimeString('es-MX');
+
+}
+
+actualizarFechaHora();
+
+setInterval(actualizarFechaHora,1000);
+
+</script>
+
 </body>
+
 </html>

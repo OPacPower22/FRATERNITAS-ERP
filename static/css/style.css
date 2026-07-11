@@ -1,0 +1,205 @@
+/* ==========================================================
+   FRATERNITAS ERP
+   Hoja de estilos institucional
+   ========================================================== */
+
+:root{
+
+    --frat-red:#CE122F;
+    --frat-gold:#E4C639;
+    --frat-green:#4B6A2A;
+
+    --frat-white:#FFFFFF;
+    --frat-black:#000000;
+
+    --background:#F4F5F7;
+
+    --shadow:0 6px 18px rgba(0,0,0,.08);
+
+    --radius:18px;
+
+}
+
+/* ---------- BODY ---------- */
+
+body{
+
+    background:var(--background);
+
+    font-family:
+        "Segoe UI",
+        sans-serif;
+
+    color:var(--frat-black);
+
+}
+
+/* ---------- HEADER ---------- */
+
+header{
+
+    background:white;
+
+border-bottom:4px solid var(--frat-red);
+
+}
+
+.logo-principal{
+
+    max-height:125px;
+
+}
+
+.titulo-logia{
+
+    font-size:.82rem;
+
+    letter-spacing:2px;
+
+    color:#555;
+
+    text-transform:uppercase;
+
+}
+
+.nombre-logia{
+
+    color:var(--frat-red);
+
+    font-size:2rem;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+}
+
+.subtitulo{
+
+    color:#666;
+
+    font-size:1rem;
+
+    margin-top:4px;
+
+}
+
+.datos-usuario{
+
+    font-size:.88rem;
+
+    line-height:1.5;
+
+}
+
+/* ==========================================================
+   TARJETAS DEL DASHBOARD
+   ========================================================== */
+
+.dashboard-card{
+
+    background:#FFFFFF;
+
+    border:none;
+
+    border-top:6px solid transparent;
+
+    border-radius:18px;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.08);
+
+    transition:
+        all .25s ease;
+
+    cursor:pointer;
+
+}
+
+.card-finanzas{
+
+    border-top-color:var(--frat-green);
+
+}
+
+.card-egresos{
+
+    border-top-color:var(--frat-red);
+
+}
+
+.card-miembros{
+
+    border-top-color:var(--frat-gold);
+
+}
+
+.card-reportes{
+
+    border-top-color:var(--frat-black);
+
+}
+
+.dashboard-card:hover{
+
+    transform:
+        translateY(-8px);
+
+    box-shadow:
+        0 18px 35px rgba(0,0,0,.15);
+
+}
+
+.dashboard-card:active{
+
+    transform:scale(.98);
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.dashboard-icon{
+
+    font-size:2.6rem;
+
+    margin-bottom:16px;
+
+}
+
+.dashboard-number{
+
+    font-size:2.15rem;
+
+    font-weight:700;
+
+    margin-bottom:8px;
+
+}
+
+.dashboard-title{
+
+    font-size:.95rem;
+
+    color:#666;
+
+    letter-spacing:.5px;
+
+}
+
+/* ---------- FOOTER ---------- */
+
+footer{
+
+    margin-top:60px;
+
+    background:white;
+
+    border-top:1px solid #ddd;
+
+    color:#666;
+
+}

@@ -1,24 +1,205 @@
 {% extends "base/base.html" %}
 
 {% block title %}
-Dashboard | FRATERNITAS ERP
+Fraternidad No. 1 | Sistema de Gestión Administrativa
 {% endblock %}
 
 {% block content %}
 
-<h1>Dashboard</h1>
+<div class="row g-4">
 
-<p>Bienvenido a FRATERNITAS ERP.</p>
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+            <div class="card-body text-center">
 
-<div>
-    <h2>Indicadores</h2>
+                <i class="bi bi-cash-stack dashboard-icon text-success"></i>
 
-    <ul>
-        <li>Balance General</li>
-        <li>Ingresos del mes</li>
-        <li>Egresos del mes</li>
-        <li>Miembros activos</li>
-    </ul>
+                <div class="dashboard-number">
+
+                    $ {{ saldo_caja }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Saldo en Caja
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+            <div class="card-body text-center">
+
+                <i class="bi bi-people-fill dashboard-icon text-primary"></i>
+
+                <div class="dashboard-number">
+
+                    {{ total_hermanos }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Hermanos registrados
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-person-check-fill dashboard-icon text-success"></i>
+
+                <div class="dashboard-number">
+
+                    {{ hermanos_corriente }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Al corriente
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-person-fill-exclamation dashboard-icon text-danger"></i>
+
+                <div class="dashboard-number">
+
+                    {{ hermanos_deudores }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Deudores
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-arrow-down-circle-fill dashboard-icon text-success"></i>
+
+                <div class="dashboard-number">
+
+                    $ {{ ingresos_mes }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Ingresos del mes
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+        <div class="card dashboard-card h-100">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-arrow-up-circle-fill dashboard-icon text-danger"></i>
+
+                <div class="dashboard-number">
+
+                    $ {{ egresos_mes }}
+
+                </div>
+
+                <div class="dashboard-title">
+
+                    Egresos del mes
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4 mt-3">
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-plus-circle dashboard-icon text-success"></i>
+
+                <h5>Registrar ingreso</h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-dash-circle dashboard-icon text-danger"></i>
+
+                <h5>Registrar egreso</h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card dashboard-card">
+
+            <div class="card-body text-center">
+
+                <i class="bi bi-file-earmark-pdf dashboard-icon text-dark"></i>
+
+                <h5>Reportes</h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 {% endblock %}
