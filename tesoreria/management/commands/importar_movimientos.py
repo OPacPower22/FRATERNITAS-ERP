@@ -32,3 +32,50 @@ class Command(BaseCommand):
 
         for hoja in resultado["hojas"]:
             self.stdout.write(f" - {hoja}")
+
+        resultado_filas = servicio.obtener_filas()
+
+        if not resultado_filas["ok"]:
+            self.stdout.write(self.style.ERROR(resultado_filas["mensaje"]))
+            return
+
+        self.stdout.write("")
+        self.stdout.write(f"Filas: {resultado_filas['filas']}")
+        self.stdout.write(f"Columnas: {resultado_filas['columnas']}")
+
+        resultado = servicio.obtener_primeras_filas()
+
+        self.stdout.write("")
+        self.stdout.write("Primeras filas:")
+
+        for fila in resultado["filas"]:
+            self.stdout.write(str(fila))
+
+        resultado = servicio.obtener_encabezados()
+
+        self.stdout.write("")
+        self.stdout.write("Encabezados:")
+
+        for encabezado in resultado["encabezados"]:
+            self.stdout.write(f"- {encabezado}")
+
+            resultado = servicio.obtener_primer_movimiento()
+
+        self.stdout.write("")
+        self.stdout.write("Primer movimiento:")
+
+        for campo, valor in resultado["movimiento"].items():
+            self.stdout.write(f"{campo}: {valor}")
+
+        resultado = servicio.obtener_movimientos()
+
+        self.stdout.write("")
+        self.stdout.write(
+            f"Movimientos leídos: {len(resultado['movimientos'])}"
+        ) 
+
+        self.stdout.write("")
+        self.stdout.write("Primeros 10 movimientos:")
+
+        for movimiento in resultado["movimientos"][:10]:
+         self.stdout.write(str(movimiento))
