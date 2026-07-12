@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "tesoreria",
     "catalogos",
     "core",
+    "negocio",
 ]
 
 MIDDLEWARE = [
