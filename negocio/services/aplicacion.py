@@ -1,6 +1,9 @@
-"""
-Motor de aplicación de pagos.
-"""
+from decimal import Decimal
+
+from negocio.domain.propuesta import (
+    AplicacionPropuesta,
+    PropuestaAplicacion,
+)
 
 
 def proponer_aplicacion_pago(
@@ -9,21 +12,9 @@ def proponer_aplicacion_pago(
 ):
     """
     Genera una propuesta de aplicación del pago.
-
-    Parámetros
-    ----------
-    obligaciones : iterable
-        Obligaciones pendientes ordenadas
-        por antigüedad.
-
-    importe : Decimal | float
-
-    Retorna
-    -------
-    dict
     """
 
-    disponible = importe
+    disponible = Decimal(str(importe))
 
     aplicaciones = []
 
@@ -40,15 +31,20 @@ def proponer_aplicacion_pago(
         )
 
         aplicaciones.append(
-            {
-                "obligacion": obligacion,
-                "importe": aplicado,
-            }
+            AplicacionPropuesta(
+                obligacion=obligacion,
+                importe=aplicado,
+            )
         )
 
         disponible -= aplicado
 
-    return {
-        "aplicaciones": aplicaciones,
-        "saldo_a_favor": disponible,
-    }
+    propuesta = PropuestaAplicacion()
+
+    propuesta.importe_recibido = Decimal(str(importe))
+
+    propuesta.saldo_a_favor = disponible
+
+    propuesta.aplicaciones = aplicaciones
+
+    return propuesta

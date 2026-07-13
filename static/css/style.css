@@ -203,3 +203,18 @@ footer{
     color:#666;
 
 }
+
+.erp-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:24px;
+    margin-top:24px;
+}
+
+.erp-card{
+    background:#fff;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    min-height:420px;
+}

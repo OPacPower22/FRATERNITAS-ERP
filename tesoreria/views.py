@@ -10,6 +10,13 @@ def index(request):
     )
 
 
+def emitir_recibo(request):
+    return render(
+        request,
+        "tesoreria/cu001/emitir_recibo.html",
+    )
+
+
 def registrar_ingreso(request):
 
     if request.method == "POST":

@@ -16,6 +16,7 @@ class ConceptoContable(models.Model):
     tipo = models.CharField(
         max_length=1,
         choices=TIPO_CHOICES,
+    default="I",
     )
 
     activo = models.BooleanField(
