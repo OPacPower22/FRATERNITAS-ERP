@@ -1,37 +1,35 @@
 from decimal import Decimal
 
-from negocio.domain.propuesta import (
-    AplicacionPropuesta,
-    PropuestaAplicacion,
-)
+from negocio.domain.propuesta import PropuestaAplicacion
+from negocio.services.pagos import distribuir_pago
 
 
-def proponer_aplicacion_pago(
-    obligaciones,
-    importe,
-):
+def calcular_propuesta(obligaciones, importe):
     """
     Genera una propuesta de aplicación del pago.
+
+    Parámetros
+    ----------
+    obligaciones : iterable
+        Objetos con atributo saldo_pendiente.
+    importe : Decimal | int | float
+
+    Retorna
+    -------
+    PropuestaAplicacion
     """
-
     disponible = Decimal(str(importe))
-
     aplicaciones = []
 
     for obligacion in obligaciones:
-
         if disponible <= 0:
             break
 
-        pendiente = obligacion.saldo_pendiente
-
-        aplicado = min(
-            disponible,
-            pendiente,
-        )
+        saldo = obligacion.saldo_pendiente
+        aplicado = min(saldo, disponible)
 
         aplicaciones.append(
-            AplicacionPropuesta(
+            distribuir_pago(
                 obligacion=obligacion,
                 importe=aplicado,
             )
@@ -39,12 +37,9 @@ def proponer_aplicacion_pago(
 
         disponible -= aplicado
 
-    propuesta = PropuestaAplicacion()
-
-    propuesta.importe_recibido = Decimal(str(importe))
-
-    propuesta.saldo_a_favor = disponible
-
-    propuesta.aplicaciones = aplicaciones
+    propuesta = PropuestaAplicacion(
+        aplicaciones=aplicaciones,
+        saldo_a_favor=max(disponible, Decimal("0.00")),
+    )
 
     return propuesta

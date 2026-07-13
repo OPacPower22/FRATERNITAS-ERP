@@ -1,38 +1,109 @@
 {% extends "base/base.html" %}
-
-{% block title %}
-CU-001 · Emitir recibo
-{% endblock %}
-
+{% block title %}CU-001 · Emitir Recibo{% endblock %}
 {% block content %}
 
-<h2>Emitir Recibo</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>CU-001 · Emitir Recibo</h2>
+    <div>
+        <a href="/" class="btn btn-outline-primary">← Dashboard</a>
+        <a href="/admin/logout/" class="btn btn-outline-danger">Salir</a>
+    </div>
+</div>
 
 <div class="erp-grid">
 
-    <section class="erp-card">
+<section class="erp-card">
+<h4>Expediente del Hermano</h4>
 
-        <h3>Hermano</h3>
+<div class="mb-3">
+<label class="form-label">No. de Control o Nombre</label>
+<input class="form-control" placeholder="Buscar...">
+</div>
 
-        <p>Aquí aparecerá la búsqueda del hermano.</p>
+<div class="text-center py-3">
+<div style="width:90px;height:90px;border-radius:50%;background:#b5122b;color:#fff;
+display:inline-flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;">
+JP
+</div>
+</div>
 
-    </section>
+<table class="table table-sm">
+<tr><th>Nombre</th><td>—</td></tr>
+<tr><th>Grado</th><td>—</td></tr>
+<tr><th>Estado</th><td><span class="badge bg-success">A PLOMO</span></td></tr>
+<tr><th>Último pago</th><td>—</td></tr>
+</table>
 
-    <section class="erp-card">
+</section>
 
-        <h3>Propuesta de aplicación</h3>
+<section class="erp-card">
 
-        <p>Aquí el sistema propondrá la aplicación del pago.</p>
+<h4>Aplicación del Pago</h4>
 
-    </section>
+<form method="post">
+{% csrf_token %}
 
-    <section class="erp-card">
+<label class="form-label">Importe recibido</label>
+<input name="importe" type="number" step="0.01" class="form-control form-control-lg mb-3">
 
-        <h3>Recibo</h3>
+<button class="btn btn-success w-100">
+Calcular aplicación
+</button>
 
-        <p>Vista previa del recibo.</p>
+</form>
 
-    </section>
+{% if propuesta %}
+<hr>
+<h5>Propuesta</h5>
+
+<table class="table table-sm">
+<thead>
+<tr>
+<th>Periodo</th>
+<th class="text-end">Aplicado</th>
+</tr>
+</thead>
+<tbody>
+{% for item in propuesta.aplicaciones %}
+<tr>
+<td>{{ item.periodo }}</td>
+<td class="text-end">${{ item.importe_aplicado }}</td>
+</tr>
+{% endfor %}
+</tbody>
+<tfoot>
+<tr>
+<th>Saldo a favor</th>
+<th class="text-end">${{ propuesta.saldo_a_favor }}</th>
+</tr>
+</tfoot>
+</table>
+{% endif %}
+
+</section>
+
+<section class="erp-card">
+
+<h4>Vista previa del Recibo</h4>
+
+<div class="border rounded p-3">
+
+<p><strong>Recibo:</strong> ----</p>
+<p><strong>Fecha:</strong> {% now "d/m/Y" %}</p>
+
+<hr>
+
+<p>El detalle del recibo aparecerá aquí conforme
+se confirme la aplicación del pago.</p>
+
+</div>
+
+<div class="d-grid gap-2 mt-3">
+<button class="btn btn-primary">Confirmar e Imprimir</button>
+<button type="button" class="btn btn-secondary">Cancelar</button>
+</div>
+
+</section>
 
 </div>
 

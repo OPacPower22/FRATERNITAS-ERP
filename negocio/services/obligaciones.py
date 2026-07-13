@@ -1,14 +1,21 @@
-"""
-Servicios relacionados con obligaciones.
-"""
+from django.db.models import QuerySet
+
+from negocio.models import Obligacion
 
 
-def obtener_obligaciones_pendientes(
-    hermano,
-):
+def obtener_obligaciones_pendientes(hermano) -> QuerySet:
     """
-    Devuelve las obligaciones pendientes
-    ordenadas por antigüedad.
+    Recupera las obligaciones pendientes o parciales
+    ordenadas por vencimiento.
     """
-
-    return []
+    return (
+        Obligacion.objects
+        .filter(
+            hermano=hermano,
+            estado__in=[
+                "PENDIENTE",
+                "PARCIAL",
+            ],
+        )
+        .order_by("fecha_vencimiento")
+    )

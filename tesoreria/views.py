@@ -1,46 +1,56 @@
-from django.shortcuts import render, redirect
+from decimal import Decimal
 
-from .forms import MovimientoIngresoForm
+from django.shortcuts import render
+
+from negocio.services.aplicacion import calcular_propuesta
+
+
+class ObligacionDummy:
+    """
+    Temporal.
+    Será sustituido por el modelo Obligacion.
+    """
+
+    def __init__(self, periodo, saldo):
+        self.periodo = periodo
+        self.saldo_pendiente = Decimal(str(saldo))
 
 
 def index(request):
     return render(
         request,
-        "tesoreria/index.html",
+        "core/dashboard.html",
     )
 
 
 def emitir_recibo(request):
-    return render(
-        request,
-        "tesoreria/cu001/emitir_recibo.html",
-    )
 
-
-def registrar_ingreso(request):
+    propuesta = None
 
     if request.method == "POST":
 
-        form = MovimientoIngresoForm(request.POST)
+        importe = Decimal(
+            request.POST.get(
+                "importe",
+                "0",
+            )
+        )
 
-        if form.is_valid():
+        obligaciones = [
+            ObligacionDummy("Julio 2026", 280),
+            ObligacionDummy("Agosto 2026", 280),
+            ObligacionDummy("Septiembre 2026", 280),
+        ]
 
-            movimiento = form.save(commit=False)
-
-            movimiento.tipo = "I"
-
-            movimiento.save()
-
-            return redirect("tesoreria")
-
-    else:
-
-        form = MovimientoIngresoForm()
+        propuesta = calcular_propuesta(
+            obligaciones,
+            importe,
+        )
 
     return render(
         request,
-        "tesoreria/registrar_ingreso.html",
+        "tesoreria/cu001/emitir_recibo.html",
         {
-            "form": form,
+            "propuesta": propuesta,
         },
     )
