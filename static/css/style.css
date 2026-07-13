@@ -1,220 +1,163 @@
 /* ==========================================================
-   FRATERNITAS ERP
-   Hoja de estilos institucional
+   FRATERNITAS-ERP · CSS Institucional MVP
    ========================================================== */
 
 :root{
-
-    --frat-red:#CE122F;
-    --frat-gold:#E4C639;
-    --frat-green:#4B6A2A;
-
-    --frat-white:#FFFFFF;
-    --frat-black:#000000;
-
-    --background:#F4F5F7;
-
-    --shadow:0 6px 18px rgba(0,0,0,.08);
-
-    --radius:18px;
-
+    --vino:#b5122b;
+    --verde:#198754;
+    --azul:#0d6efd;
+    --rojo:#dc3545;
+    --gris:#6c757d;
+    --fondo:#f5f6f8;
+    --panel:#ffffff;
 }
-
-/* ---------- BODY ---------- */
 
 body{
-
-    background:var(--background);
-
-    font-family:
-        "Segoe UI",
-        sans-serif;
-
-    color:var(--frat-black);
-
+    background:var(--fondo);
+    font-family:Calibri, Arial, sans-serif;
+    color:#222;
 }
 
-/* ---------- HEADER ---------- */
+/* ---------- Encabezado ---------- */
 
 header{
-
-    background:white;
-
-border-bottom:4px solid var(--frat-red);
-
+    background:#fff;
+    border-bottom:4px solid var(--vino);
 }
 
 .logo-principal{
-
-    max-height:125px;
-
+    width:180px;
+    height:auto;
 }
 
 .titulo-logia{
-
-    font-size:.82rem;
-
-    letter-spacing:2px;
-
+    font-size:1.30rem;
+    letter-spacing:3px;
     color:#555;
-
-    text-transform:uppercase;
-
+    margin-bottom:.15rem;
+    line-height:1.15;
 }
 
 .nombre-logia{
-
-    color:var(--frat-red);
-
-    font-size:2rem;
-
-    font-weight:700;
-
+    font-size:3.6rem;
+    font-weight:800;
+    color:var(--vino);
     letter-spacing:1px;
-
+    margin:.15rem 0;
+    line-height:1;
 }
 
 .subtitulo{
-
+    font-size:1.35rem;
     color:#666;
-
-    font-size:1rem;
-
-    margin-top:4px;
-
+    font-weight:400;
+    margin-top:.45rem;
 }
 
 .datos-usuario{
-
-    font-size:.88rem;
-
-    line-height:1.5;
-
-}
-
-/* ==========================================================
-   TARJETAS DEL DASHBOARD
-   ========================================================== */
-
-.dashboard-card{
-
-    background:#FFFFFF;
-
-    border:none;
-
-    border-top:6px solid transparent;
-
-    border-radius:18px;
-
-    box-shadow:
-        0 8px 20px rgba(0,0,0,.08);
-
-    transition:
-        all .25s ease;
-
-    cursor:pointer;
-
-}
-
-.card-finanzas{
-
-    border-top-color:var(--frat-green);
-
-}
-
-.card-egresos{
-
-    border-top-color:var(--frat-red);
-
-}
-
-.card-miembros{
-
-    border-top-color:var(--frat-gold);
-
-}
-
-.card-reportes{
-
-    border-top-color:var(--frat-black);
-
-}
-
-.dashboard-card:hover{
-
-    transform:
-        translateY(-8px);
-
-    box-shadow:
-        0 18px 35px rgba(0,0,0,.15);
-
-}
-
-.dashboard-card:active{
-
-    transform:scale(.98);
-
-}
-
-.dashboard-card:hover{
-
-    transform:translateY(-6px);
-
-}
-
-.dashboard-icon{
-
-    font-size:2.6rem;
-
-    margin-bottom:16px;
-
-}
-
-.dashboard-number{
-
-    font-size:2.15rem;
-
-    font-weight:700;
-
-    margin-bottom:8px;
-
-}
-
-.dashboard-title{
-
     font-size:.95rem;
-
-    color:#666;
-
-    letter-spacing:.5px;
-
 }
 
-/* ---------- FOOTER ---------- */
+/* ---------- Contenido ---------- */
 
-footer{
-
-    margin-top:60px;
-
-    background:white;
-
-    border-top:1px solid #ddd;
-
-    color:#666;
-
+main.container{
+    margin-top:2rem!important;
+    margin-bottom:2rem!important;
 }
+
+/* ---------- Tarjetas ---------- */
+
+.dashboard-card,
+.card{
+    border:none;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+
+.indicador h2{
+    font-size:2.35rem;
+    font-weight:700;
+}
+
+/* ---------- Centro de Operaciones ---------- */
+
+.card-header{
+    background:#fff;
+    font-size:1.2rem;
+    font-weight:700;
+}
+
+.btn-operacion{
+    height:140px;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    font-size:1.35rem;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.btn-operacion:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 24px rgba(0,0,0,.18);
+}
+
+.btn-operacion i{
+    font-size:2.6rem;
+}
+
+.btn-operacion small{
+    font-size:.82rem;
+    font-weight:400;
+    opacity:.95;
+}
+
+/* ---------- Paneles CU-001 ---------- */
 
 .erp-grid{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
     gap:24px;
-    margin-top:24px;
 }
 
 .erp-card{
     background:#fff;
-    border-radius:16px;
-    padding:24px;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-    min-height:420px;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+    min-height:500px;
+}
+
+/* ---------- Footer ---------- */
+
+footer{
+    margin-top:2rem;
+    color:#666;
+    font-size:.92rem;
+}
+
+/* ---------- Tablet ---------- */
+
+@media (max-width:992px){
+
+    .nombre-logia{
+        font-size:2.7rem;
+    }
+
+    .subtitulo{
+        font-size:1.1rem;
+    }
+
+    .btn-operacion{
+        height:120px;
+        font-size:1.15rem;
+    }
+
+    .erp-grid{
+        grid-template-columns:1fr;
+    }
 }

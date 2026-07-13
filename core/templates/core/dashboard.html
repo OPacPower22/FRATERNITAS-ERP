@@ -1,166 +1,183 @@
 {% extends "base/base.html" %}
 
 {% block title %}
-Fraternidad No. 1 | Sistema de Gestión Administrativa
+Centro de Operaciones
 {% endblock %}
 
 {% block content %}
 
-<div class="row g-4">
+<!-- INDICADORES FINANCIEROS -->
 
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
-            <div class="card-body text-center">
+<div class="row g-3 mb-4">
 
-                <i class="bi bi-cash-stack dashboard-icon text-success"></i>
+    <div class="col-md-4">
 
-                <div class="dashboard-number">
+        <div class="card dashboard-card indicador">
 
-                    $ {{ saldo_caja }}
+            <div class="card-body">
 
-                </div>
+                <small class="text-muted">Saldo en Caja</small>
 
-                <div class="dashboard-title">
+                <h2 class="mt-2 text-success">
 
-                    Saldo en Caja
+                    $ {{ saldo_caja|default:"0.00" }}
 
-                </div>
+                </h2>
 
             </div>
+
         </div>
+
     </div>
 
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
-            <div class="card-body text-center">
+    <div class="col-md-4">
 
-                <i class="bi bi-people-fill dashboard-icon text-primary"></i>
+        <div class="card dashboard-card indicador">
 
-                <div class="dashboard-number">
+            <div class="card-body">
 
-                    {{ total_hermanos }}
+                <small class="text-muted">
 
-                </div>
+                    Ingresos del Mes
 
-                <div class="dashboard-title">
+                </small>
 
-                    Hermanos registrados
+                <h2 class="mt-2 text-primary">
 
-                </div>
+                    $ {{ ingresos_mes|default:"0.00" }}
+
+                </h2>
 
             </div>
+
         </div>
+
     </div>
 
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
+    <div class="col-md-4">
 
-            <div class="card-body text-center">
+        <div class="card dashboard-card indicador">
 
-                <i class="bi bi-person-check-fill dashboard-icon text-success"></i>
+            <div class="card-body">
 
-                <div class="dashboard-number">
+                <small class="text-muted">
 
-                    {{ hermanos_corriente }}
+                    Egresos del Mes
 
-                </div>
+                </small>
 
-                <div class="dashboard-title">
+                <h2 class="mt-2 text-danger">
 
-                    Al corriente
+                    $ {{ egresos_mes|default:"0.00" }}
 
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
-
-            <div class="card-body text-center">
-
-                <i class="bi bi-person-fill-exclamation dashboard-icon text-danger"></i>
-
-                <div class="dashboard-number">
-
-                    {{ hermanos_deudores }}
-
-                </div>
-
-                <div class="dashboard-title">
-
-                    Deudores
-
-                </div>
+                </h2>
 
             </div>
 
         </div>
-    </div>
 
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
-
-            <div class="card-body text-center">
-
-                <i class="bi bi-arrow-down-circle-fill dashboard-icon text-success"></i>
-
-                <div class="dashboard-number">
-
-                    $ {{ ingresos_mes }}
-
-                </div>
-
-                <div class="dashboard-title">
-
-                    Ingresos del mes
-
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-md-6">
-        <div class="card dashboard-card h-100">
-
-            <div class="card-body text-center">
-
-                <i class="bi bi-arrow-up-circle-fill dashboard-icon text-danger"></i>
-
-                <div class="dashboard-number">
-
-                    $ {{ egresos_mes }}
-
-                </div>
-
-                <div class="dashboard-title">
-
-                    Egresos del mes
-
-                </div>
-
-            </div>
-
-        </div>
     </div>
 
 </div>
 
-<div class="row g-4 mt-3">
+<!-- OPERACIONES -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+
+        <strong>
+
+            Centro de Operaciones
+
+        </strong>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-3">
+
+            <div class="col-md-3">
+
+                <a
+                    href="{% url 'cu001_emitir_recibo' %}"
+                    class="btn btn-success w-100 py-4">
+
+                    <i class="bi bi-receipt fs-2 d-block mb-2"></i>
+
+                    Emitir Recibo
+
+                </a>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <button
+                    class="btn btn-danger w-100 py-4">
+
+                    <i class="bi bi-cash-coin fs-2 d-block mb-2"></i>
+
+                    Registrar Egreso
+
+                </button>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <button
+                    class="btn btn-primary w-100 py-4">
+
+                    <i class="bi bi-people-fill fs-2 d-block mb-2"></i>
+
+                    Expedientes
+
+                </button>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <button
+                    class="btn btn-secondary w-100 py-4">
+
+                    <i class="bi bi-bar-chart-line-fill fs-2 d-block mb-2"></i>
+
+                    Reportes
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- INFORMACIÓN -->
+
+<div class="row g-3">
 
     <div class="col-md-4">
 
         <div class="card dashboard-card">
 
-            <div class="card-body text-center">
+            <div class="card-body">
 
-                <i class="bi bi-plus-circle dashboard-icon text-success"></i>
+                <small class="text-muted">
 
-                <a href="{% url 'cu001_emitir_recibo' %}" class="dashboard-card">
+                    Hermanos a Plomo
+
+                </small>
+
+                <h2 class="text-success">
+
+                    {{ hermanos_corriente|default:"0" }}
+
+                </h2>
 
             </div>
 
@@ -172,11 +189,19 @@ Fraternidad No. 1 | Sistema de Gestión Administrativa
 
         <div class="card dashboard-card">
 
-            <div class="card-body text-center">
+            <div class="card-body">
 
-                <i class="bi bi-dash-circle dashboard-icon text-danger"></i>
+                <small class="text-muted">
 
-                <h5>Registrar egreso</h5>
+                    Hermanos Desplomados
+
+                </small>
+
+                <h2 class="text-danger">
+
+                    {{ hermanos_deudores|default:"0" }}
+
+                </h2>
 
             </div>
 
@@ -188,11 +213,19 @@ Fraternidad No. 1 | Sistema de Gestión Administrativa
 
         <div class="card dashboard-card">
 
-            <div class="card-body text-center">
+            <div class="card-body">
 
-                <i class="bi bi-file-earmark-pdf dashboard-icon text-dark"></i>
+                <small class="text-muted">
 
-                <h5>Reportes</h5>
+                    Hermanos Registrados
+
+                </small>
+
+                <h2>
+
+                    {{ total_hermanos|default:"0" }}
+
+                </h2>
 
             </div>
 
