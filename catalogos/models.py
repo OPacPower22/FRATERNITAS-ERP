@@ -1,61 +1,54 @@
 from django.db import models
 
 
-class ConceptoContable(models.Model):
-
-    TIPO_CHOICES = [
-        ("I", "Ingreso"),
-        ("E", "Egreso"),
-    ]
+class Grado(models.Model):
 
     nombre = models.CharField(
-        max_length=100,
-        unique=True,
+        max_length=50,
+        unique=True
     )
 
-    tipo = models.CharField(
-        max_length=1,
-        choices=TIPO_CHOICES,
-    default="I",
+    abreviatura = models.CharField(
+        max_length=10,
+        blank=True
+    )
+
+    orden = models.PositiveSmallIntegerField(
+        unique=True
     )
 
     activo = models.BooleanField(
-        default=True,
+        default=True
     )
 
-    requiere_hermano = models.BooleanField(
-    default=True,
-    verbose_name="Requiere hermano"
-)
-
-    descripcion = models.TextField(
-    blank=True
-)
-    
-    orden = models.PositiveIntegerField(
-    default=0
-)
-    
-    # Distribución por fondos
-
-    aplica_capitas = models.BooleanField(default=False)
-
-    aplica_aniversario = models.BooleanField(default=False)
-
-    aplica_beneficencia = models.BooleanField(default=False)
-
-    aplica_taller_bj = models.BooleanField(default=False)
-
-    aplica_otros = models.BooleanField(default=False)
-
     class Meta:
-
-        ordering = ["nombre"]
-
-        verbose_name = "Concepto"
-
-        verbose_name_plural = "Conceptos"
+        ordering = ["orden"]
+        verbose_name = "Grado"
+        verbose_name_plural = "Grados"
 
     def __str__(self):
+        return self.nombre
 
+
+class ConceptoContable(models.Model):
+
+    nombre = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    descripcion = models.TextField(
+        blank=True
+    )
+
+    activo = models.BooleanField(
+        default=True
+    )
+
+    class Meta:
+        ordering = ["nombre"]
+        verbose_name = "Concepto Contable"
+        verbose_name_plural = "Conceptos Contables"
+
+    def __str__(self):
         return self.nombre

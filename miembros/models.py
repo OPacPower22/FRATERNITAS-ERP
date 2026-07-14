@@ -1,5 +1,6 @@
 from django.db import models
 
+from catalogos.models import Grado
 
 class Hermano(models.Model):
 
@@ -8,13 +9,7 @@ class Hermano(models.Model):
         ("AFILIACION", "Afiliación"),
         ("REGULARIZACION", "Regularización"),
     ]
-
-    GRADOS = [
-        (1, "Aprendiz"),
-        (2, "Compañero"),
-        (3, "Maestro"),
-    ]
-
+    
     ESTATUS = [
         ("ACTIVO", "Activo"),
         ("LICENCIA", "Licencia"),
@@ -98,10 +93,11 @@ class Hermano(models.Model):
     # INFORMACIÓN MASÓNICA
     # ==========================
 
-    grado = models.PositiveSmallIntegerField(
-        choices=GRADOS,
-        default=1
-    )
+    grado = models.ForeignKey(
+    Grado,
+    on_delete=models.PROTECT,
+    verbose_name="Grado"
+)
 
     tipo_ingreso = models.CharField(
         max_length=20,

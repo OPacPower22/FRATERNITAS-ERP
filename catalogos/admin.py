@@ -1,6 +1,19 @@
 from django.contrib import admin
-from .models import ConceptoContable
+from .models import Grado
 
+from .models import Grado, ConceptoContable
+
+@admin.register(Grado)
+class GradoAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "orden",
+        "nombre",
+        "abreviatura",
+        "activo",
+    )
+
+    ordering = ("orden",)
 
 @admin.register(ConceptoContable)
 class ConceptoContableAdmin(admin.ModelAdmin):
@@ -10,14 +23,6 @@ class ConceptoContableAdmin(admin.ModelAdmin):
         "activo",
     )
 
-    list_filter = (
-        "activo",
-    )
-
     search_fields = (
-        "nombre",
-    )
-
-    ordering = (
         "nombre",
     )
