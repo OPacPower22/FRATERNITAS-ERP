@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Grado
 
 from .models import Grado, ConceptoContable
+from .models import Grado, Cargo, ConceptoContable
 
 @admin.register(Grado)
 class GradoAdmin(admin.ModelAdmin):
@@ -11,6 +12,10 @@ class GradoAdmin(admin.ModelAdmin):
         "nombre",
         "abreviatura",
         "activo",
+    )
+
+    search_fields = (
+        "nombre",
     )
 
     ordering = ("orden",)

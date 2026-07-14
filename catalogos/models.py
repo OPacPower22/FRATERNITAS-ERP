@@ -30,6 +30,31 @@ class Grado(models.Model):
         return self.nombre
 
 
+class Cargo(models.Model):
+
+    nombre = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    abreviatura = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    activo = models.BooleanField(
+        default=True
+    )
+
+    class Meta:
+        ordering = ["nombre"]
+        verbose_name = "Cargo"
+        verbose_name_plural = "Cargos"
+
+    def __str__(self):
+        return self.nombre
+
+
 class ConceptoContable(models.Model):
 
     nombre = models.CharField(
