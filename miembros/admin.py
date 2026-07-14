@@ -4,16 +4,20 @@ from .models import Hermano
 
 @admin.register(Hermano)
 class HermanoAdmin(admin.ModelAdmin):
+
     list_display = (
         "numero_control",
         "apellido_paterno",
         "apellido_materno",
         "nombre",
-        "activo",
+        "grado",
+        "estatus",
     )
 
     list_filter = (
-        "activo",
+        "grado",
+        "estatus",
+        "tipo_ingreso",
     )
 
     search_fields = (
@@ -27,5 +31,4 @@ class HermanoAdmin(admin.ModelAdmin):
     ordering = (
         "apellido_paterno",
         "apellido_materno",
-        "nombre",
     )
