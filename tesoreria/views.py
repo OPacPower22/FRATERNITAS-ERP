@@ -2,18 +2,9 @@ from decimal import Decimal
 
 from django.shortcuts import render
 
+from miembros.models import Hermano
+from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
-
-
-class ObligacionDummy:
-    """
-    Temporal.
-    Será sustituido por el modelo Obligacion.
-    """
-
-    def __init__(self, periodo, saldo):
-        self.periodo = periodo
-        self.saldo_pendiente = Decimal(str(saldo))
 
 
 def index(request):
@@ -25,32 +16,58 @@ def index(request):
 
 def emitir_recibo(request):
 
+    hermanos = Hermano.objects.filter(
+        activo=True,
+    ).order_by(
+        "apellido_paterno",
+        "apellido_materno",
+        "nombre",
+    )
+
+    hermano = None
     propuesta = None
+    obligaciones = []
 
     if request.method == "POST":
 
-        importe = Decimal(
-            request.POST.get(
-                "importe",
-                "0",
+        hermano_id = request.POST.get("hermano")
+
+        if hermano_id:
+
+            hermano = Hermano.objects.get(
+                pk=hermano_id,
             )
-        )
 
-        obligaciones = [
-            ObligacionDummy("Julio 2026", 280),
-            ObligacionDummy("Agosto 2026", 280),
-            ObligacionDummy("Septiembre 2026", 280),
-        ]
+            obligaciones = Obligacion.objects.filter(
+                hermano=hermano,
+                estado__in=[
+                    "PENDIENTE",
+                    "PARCIAL",
+                ],
+            ).order_by(
+                "fecha_vencimiento",
+            )
 
-        propuesta = calcular_propuesta(
-            obligaciones,
-            importe,
-        )
+            importe = Decimal(
+                request.POST.get(
+                    "importe",
+                    "0",
+                )
+            )
+
+            propuesta = calcular_propuesta(
+                obligaciones,
+                importe,
+            )
 
     return render(
         request,
         "tesoreria/cu001/emitir_recibo.html",
         {
+            "hermanos": hermanos,
+            "hermano": hermano,
+            "hermano_seleccionado": hermano,
+            "obligaciones": obligaciones,
             "propuesta": propuesta,
         },
     )

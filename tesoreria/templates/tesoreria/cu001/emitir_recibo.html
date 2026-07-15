@@ -21,17 +21,81 @@
 </div>
 
 <div class="text-center py-3">
-<div style="width:90px;height:90px;border-radius:50%;background:#b5122b;color:#fff;
-display:inline-flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;">
-JP
+
+<div
+style="
+width:90px;
+height:90px;
+border-radius:50%;
+background:#b5122b;
+color:white;
+display:inline-flex;
+justify-content:center;
+align-items:center;
+font-size:2rem;
+font-weight:bold;">
+
+{% if hermano %}
+{{ hermano.nombre|first }}{{ hermano.apellido_paterno|first }}
+{% else %}
+?
+{% endif %}
+
 </div>
+
 </div>
 
 <table class="table table-sm">
-<tr><th>Nombre</th><td>—</td></tr>
-<tr><th>Grado</th><td>—</td></tr>
-<tr><th>Estado</th><td><span class="badge bg-success">A PLOMO</span></td></tr>
-<tr><th>Último pago</th><td>—</td></tr>
+
+<tr>
+    <th>Nombre</th>
+    <td>
+        {% if hermano %}
+            {{ hermano.nombre }}
+            {{ hermano.apellido_paterno }}
+            {{ hermano.apellido_materno }}
+        {% else %}
+            —
+        {% endif %}
+    </td>
+</tr>
+
+<tr>
+    <th>No. Control</th>
+    <td>
+        {% if hermano %}
+            {{ hermano.numero_control }}
+        {% else %}
+            —
+        {% endif %}
+    </td>
+</tr>
+
+<tr>
+    <th>Grado</th>
+    <td>—</td>
+</tr>
+
+<tr>
+    <th>Estado</th>
+    <td>
+        {% if hermano %}
+            {% if hermano.activo %}
+                <span class="badge bg-success">Activo</span>
+            {% else %}
+                <span class="badge bg-danger">Inactivo</span>
+            {% endif %}
+        {% else %}
+            —
+        {% endif %}
+    </td>
+</tr>
+
+<tr>
+    <th>Obligaciones</th>
+    <td>{{ obligaciones|length }}</td>
+</tr>
+
 </table>
 
 </section>
@@ -42,6 +106,30 @@ JP
 
 <form method="post">
 {% csrf_token %}
+
+<label class="form-label">Hermano</label>
+
+<select
+    name="hermano"
+    class="form-select mb-3">
+
+    {% for h in hermanos %}
+
+    <option
+        value="{{ h.id }}"
+        {% if hermano_seleccionado and h.id == hermano_seleccionado.id %}
+            selected
+        {% endif %}
+    >
+        {{ h.numero_control }} -
+        {{ h.apellido_paterno }}
+        {{ h.apellido_materno }},
+        {{ h.nombre }}
+    </option>
+
+    {% endfor %}
+
+</select>
 
 <label class="form-label">Importe recibido</label>
 <input name="importe" type="number" step="0.01" class="form-control form-control-lg mb-3">
