@@ -17,7 +17,7 @@ def index(request):
 def emitir_recibo(request):
 
     hermanos = Hermano.objects.filter(
-        activo=True,
+        estatus="ACTIVO",
     ).order_by(
         "apellido_paterno",
         "apellido_materno",
