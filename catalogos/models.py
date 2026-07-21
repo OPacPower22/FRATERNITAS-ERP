@@ -77,3 +77,29 @@ class ConceptoContable(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class ParametroSistema(models.Model):
+
+    clave = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+
+    valor = models.TextField()
+
+    descripcion = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    modificable = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        ordering = ["clave"]
+        verbose_name = "Parámetro del Sistema"
+        verbose_name_plural = "Parámetros del Sistema"
+
+    def __str__(self):
+        return f"{self.clave} = {self.valor}"

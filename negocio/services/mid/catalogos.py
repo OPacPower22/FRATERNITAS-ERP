@@ -16,6 +16,9 @@ from negocio.services.mid.sincronizar_conceptos import (
     sincronizar_conceptos,
 )
 
+from negocio.services.mid.sincronizar_parametros import (
+    sincronizar_parametros,
+)
 
 def sincronizar_catalogos():
 
@@ -88,4 +91,10 @@ def sincronizar_catalogos():
                 catalogos["OBLIGACION"]
             )
     
+#   if "PARAMETROS" in catalogos:
+#
+#         sincronizar_parametros(
+#            catalogos["PARAMETROS"]
+#         )
+
     return catalogos

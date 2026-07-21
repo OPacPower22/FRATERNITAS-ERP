@@ -4,6 +4,9 @@ from negocio.services.mid.catalogos import (
     sincronizar_catalogos,
 )
 
+from negocio.services.mid.parametros import (
+    sincronizar_parametros_dmi,
+)
 
 class Command(BaseCommand):
 
@@ -26,6 +29,8 @@ class Command(BaseCommand):
         )
 
         sincronizar_catalogos()
+
+        sincronizar_parametros_dmi()
 
         self.stdout.write("")
 
