@@ -8,6 +8,10 @@ from negocio.services.mid.parametros import (
     sincronizar_parametros_dmi,
 )
 
+from negocio.services.mid.miembros import (
+    sincronizar_miembros,
+)
+
 class Command(BaseCommand):
 
     help = (
@@ -15,27 +19,29 @@ class Command(BaseCommand):
     )
 
     def handle(
-        self,
-        *args,
-        **options,
+            self,
+            *args,
+            **options,
     ):
 
-        self.stdout.write("")
+            self.stdout.write("")
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                "Iniciando MID..."
+            self.stdout.write(
+                    self.style.SUCCESS(
+                            "Iniciando MID..."
+                     )
             )
-        )
 
-        sincronizar_catalogos()
+            sincronizar_catalogos()
 
-        sincronizar_parametros_dmi()
+            sincronizar_parametros_dmi()
 
-        self.stdout.write("")
+            sincronizar_miembros()          # ← Agregar
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                "MID finalizado correctamente."
+            self.stdout.write("")
+
+            self.stdout.write(
+                    self.style.SUCCESS(
+                            "MID finalizado correctamente."
+                    )
             )
-        )
