@@ -12,10 +12,6 @@ def sincronizar_conceptos(datos):
             registro["descripcion"]
         ).strip()
 
-        descripcion = str(
-            registro["clave"]
-        ).strip().upper()
-
         activo = (
             str(
                 registro["activo"]
@@ -23,33 +19,29 @@ def sincronizar_conceptos(datos):
             == "ACTIVO"
         )
 
-        _, creado = ConceptoContable.objects.update_or_create(
+        try:
 
-            nombre=nombre,
+            concepto = ConceptoContable.objects.get(
+                nombre=nombre
+            )
 
-            defaults={
+            concepto.clave = registro["clave"]
+            concepto.activo = activo
+            concepto.save()
 
-                "descripcion": descripcion,
-
-                "activo": activo,
-
-            },
-
-        )
-
-        if creado:
-            creados += 1
-        else:
             actualizados += 1
 
+        except ConceptoContable.DoesNotExist:
+
+            ConceptoContable.objects.create(
+                clave=registro["clave"],
+                nombre=nombre,
+                activo=activo,
+            )
+
+            creados += 1
+
     print()
-
     print("OBLIGACION")
-
-    print(
-        f"Creados.....: {creados}"
-    )
-
-    print(
-        f"Actualizados: {actualizados}"
-    )
+    print(f"Creados.....: {creados}")
+    print(f"Actualizados: {actualizados}")
