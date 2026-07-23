@@ -6,24 +6,19 @@ from catalogos.models import (
 )
 from miembros.models import Hermano
 from negocio.models import Obligacion
+from catalogos.models import ParametroSistema
 
-
-def calcular_importe_capita():
+def obtener_importe_capita():
     """
-    Calcula el importe vigente de la Cápita.
+    Obtiene el importe vigente de la Cápita
+    desde los parámetros institucionales.
     """
 
-    total = Decimal("0.00")
-
-    tarifas = TarifaObligacion.objects.filter(
-        estado="ACTIVA",
+    parametro = ParametroSistema.objects.get(
+        clave="CAPITA_MENSUAL",
     )
 
-    for tarifa in tarifas:
-        total += tarifa.importe
-
-    return total
-
+    return Decimal(parametro.valor)
 
 def generar_capitas_mensuales(
     periodo,
@@ -37,7 +32,7 @@ def generar_capitas_mensuales(
         clave="CAPITA",
     )
 
-    importe = calcular_importe_capita()
+    importe = obtener_importe_capita()
 
     hermanos = Hermano.objects.filter(
         estatus="ACTIVO",
