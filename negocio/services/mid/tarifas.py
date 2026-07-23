@@ -45,3 +45,16 @@ def leer_tarifas():
         )
 
     return tarifas
+
+from negocio.services.mid.sincronizar_tarifas import (
+    sincronizar_tarifas,
+)
+
+
+def sincronizar_tarifas_dmi():
+
+    tarifas = leer_tarifas()
+
+    sincronizar_tarifas(
+        tarifas
+    )

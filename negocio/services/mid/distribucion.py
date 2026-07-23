@@ -5,6 +5,9 @@ from negocio.services.mid.config import (
     HOJAS,
 )
 
+from negocio.services.mid.sincronizar_distribucion import (
+    sincronizar_distribucion,
+)
 
 def leer_distribucion():
 
@@ -45,3 +48,11 @@ def leer_distribucion():
         )
 
     return registros
+
+def sincronizar_distribucion_dmi():
+
+    distribucion = leer_distribucion()
+
+    sincronizar_distribucion(
+        distribucion
+    )
