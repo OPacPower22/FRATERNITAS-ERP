@@ -1,45 +1,87 @@
 from decimal import Decimal
 
-from negocio.domain.propuesta import PropuestaAplicacion
-from negocio.services.pagos import distribuir_pago
+from django.db import transaction
+
+from negocio.domain.propuesta import (
+    AplicacionPago,
+    PropuestaAplicacion,
+)
+from negocio.models import AplicacionPago as AplicacionPagoModel
 
 
-def calcular_propuesta(obligaciones, importe):
+def calcular_propuesta(
+    obligaciones,
+    importe,
+):
     """
-    Genera una propuesta de aplicación del pago.
-
-    Parámetros
-    ----------
-    obligaciones : iterable
-        Objetos con atributo saldo_pendiente.
-    importe : Decimal | int | float
-
-    Retorna
-    -------
-    PropuestaAplicacion
+    Calcula la propuesta de aplicación de un pago
+    utilizando el criterio FIFO.
     """
+
     disponible = Decimal(str(importe))
-    aplicaciones = []
+
+    propuesta = PropuestaAplicacion()
 
     for obligacion in obligaciones:
+
         if disponible <= 0:
             break
 
-        saldo = obligacion.saldo_pendiente
-        aplicado = min(saldo, disponible)
+        aplicado = min(
+            obligacion.saldo_pendiente,
+            disponible,
+        )
 
-        aplicaciones.append(
-            distribuir_pago(
+        propuesta.aplicaciones.append(
+            AplicacionPago(
                 obligacion=obligacion,
-                importe=aplicado,
+                periodo=obligacion.periodo,
+                importe_aplicado=aplicado,
+                saldo_restante=(
+                    obligacion.saldo_pendiente
+                    - aplicado
+                ),
             )
         )
 
         disponible -= aplicado
 
-    propuesta = PropuestaAplicacion(
-        aplicaciones=aplicaciones,
-        saldo_a_favor=max(disponible, Decimal("0.00")),
+    propuesta.saldo_a_favor = max(
+        disponible,
+        Decimal("0.00"),
     )
+
+    return propuesta
+
+
+@transaction.atomic
+def ejecutar_propuesta(
+    pago,
+    propuesta,
+):
+    """
+    Ejecuta una propuesta de aplicación de pago.
+    """
+
+    for aplicacion in propuesta.aplicaciones:
+
+        obligacion = aplicacion.obligacion
+
+        AplicacionPagoModel.objects.create(
+            pago=pago,
+            obligacion=obligacion,
+            importe_aplicado=aplicacion.importe_aplicado,
+        )
+
+        obligacion.saldo_pendiente = (
+            aplicacion.saldo_restante
+        )
+
+        if obligacion.saldo_pendiente == 0:
+            obligacion.estado = "LIQUIDADA"
+        else:
+            obligacion.estado = "PARCIAL"
+
+        obligacion.save()
 
     return propuesta
