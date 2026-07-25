@@ -48,7 +48,7 @@ def sincronizar_parametros_dmi():
                 "valor": valor,
                 "descripcion": descripcion,
                 "modificable": modificable,
-            }
+            },                      
         )
 
     print()
