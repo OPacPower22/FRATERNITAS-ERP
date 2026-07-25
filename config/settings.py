@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "catalogos",
     "core",
     "negocio",
+    "documentos",
 ]
 
 MIDDLEWARE = [
