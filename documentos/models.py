@@ -57,24 +57,6 @@ class Recibo(models.Model):
         return f"REC-{año}-{self.folio:06d}"
 
     def save(self, *args, **kwargs):
-
-        if self._state.adding and not self.folio:
-
-            with transaction.atomic():
-
-                ultimo = (
-                    Recibo.objects
-                    .select_for_update()
-                    .aggregate(Max("folio"))
-                    .get("folio__max")
-                )
-
-                self.folio = (ultimo or 0) + 1
-
-                super().save(*args, **kwargs)
-
-            return
-
         super().save(*args, **kwargs)
 
     def __str__(self):
