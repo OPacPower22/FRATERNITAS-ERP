@@ -12,12 +12,8 @@ from negocio.services.aplicacion import calcular_propuesta
 
 @login_required
 def index(request):
-    """Muestra la portada del módulo de Tesorería.
-
-    El dashboard institucional se sirve únicamente desde ``/``.  Esta ruta
-    conserva el acceso al módulo sin duplicar ese panel.
-    """
-    return render(request, "tesoreria/index.html")
+    """Muestra el dashboard institucional de Tesorería."""
+    return render(request, "core/dashboard.html")
 
 
 def _obligaciones_pendientes(hermano):
