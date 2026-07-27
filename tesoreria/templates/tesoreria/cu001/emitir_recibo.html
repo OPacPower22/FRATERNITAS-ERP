@@ -2,197 +2,141 @@
 {% block title %}CU-001 · Emitir Recibo{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>CU-001 · Emitir Recibo</h2>
-    <div>
-        <a href="/" class="btn btn-outline-primary">← Dashboard</a>
-        <a href="/admin/logout/" class="btn btn-outline-danger">Salir</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h2 class="mb-0">CU-001 · Emitir Recibo</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">← Dashboard</a>
+</div>
+
+{% if errores %}
+<div class="alert alert-danger" role="alert">
+    <ul class="mb-0">
+        {% for error in errores %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if resultado and resultado.exitoso %}
+<div class="alert alert-success" role="alert">
+    El cobro fue confirmado y el recibo fue generado correctamente.
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <section class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h4 class="card-title">Expediente del Hermano</h4>
+                <div class="text-center py-3">
+                    <div class="rounded-circle bg-danger text-white d-inline-flex justify-content-center align-items-center fw-bold fs-3" style="width: 90px; height: 90px;">
+                        {% if hermano %}{{ hermano.nombre|first }}{{ hermano.apellido_paterno|first }}{% else %}?{% endif %}
+                    </div>
+                </div>
+                <table class="table table-sm mb-0">
+                    <tr><th>Nombre</th><td>{% if hermano %}{{ hermano }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>No. control</th><td>{% if hermano %}{{ hermano.numero_control }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Grado</th><td>{% if hermano %}{{ hermano.grado }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Estado</th><td>{% if hermano %}<span class="badge text-bg-success">{{ hermano.get_estatus_display }}</span>{% else %}—{% endif %}</td></tr>
+                    <tr><th>Obligaciones pendientes</th><td>{{ obligaciones|length }}</td></tr>
+                </table>
+            </div>
+        </section>
     </div>
-</div>
 
-<div class="erp-grid">
+    <div class="col-lg-4">
+        <section class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h4 class="card-title">Aplicación del Pago</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="hermano" class="form-label">Hermano</label>
+                        <select id="hermano" name="hermano" class="form-select" required>
+                            <option value="">Seleccione un hermano...</option>
+                            {% for h in hermanos %}
+                            <option value="{{ h.pk }}" {% if hermano and h.pk == hermano.pk %}selected{% endif %}>
+                                {{ h.numero_control }} — {{ h }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="importe" class="form-label">Importe recibido</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input id="importe" name="importe" type="number" min="0.01" step="0.01" class="form-control form-control-lg" value="{{ datos_formulario.importe }}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="forma_pago" class="form-label">Forma de pago</label>
+                        <select id="forma_pago" name="forma_pago" class="form-select">
+                            <option value="EFECTIVO" {% if datos_formulario.forma_pago == "EFECTIVO" %}selected{% endif %}>Efectivo</option>
+                            <option value="TRANSFERENCIA" {% if datos_formulario.forma_pago == "TRANSFERENCIA" %}selected{% endif %}>Transferencia</option>
+                            <option value="CHEQUE" {% if datos_formulario.forma_pago == "CHEQUE" %}selected{% endif %}>Cheque</option>
+                            <option value="TARJETA" {% if datos_formulario.forma_pago == "TARJETA" %}selected{% endif %}>Tarjeta</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="referencia" class="form-label">Referencia <span class="text-muted">(opcional)</span></label>
+                        <input id="referencia" name="referencia" type="text" maxlength="100" class="form-control" value="{{ datos_formulario.referencia }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones <span class="text-muted">(opcional)</span></label>
+                        <textarea id="observaciones" name="observaciones" class="form-control" rows="2">{{ datos_formulario.observaciones }}</textarea>
+                    </div>
+                    <button type="submit" name="accion" value="calcular" class="btn btn-success w-100">Calcular aplicación</button>
 
-<section class="erp-card">
-<h4>Expediente del Hermano</h4>
+                    {% if propuesta and not resultado.exitoso %}
+                    <button type="submit" name="accion" value="confirmar" class="btn btn-primary w-100 mt-2">Confirmar cobro</button>
+                    {% endif %}
+                </form>
 
-<div class="mb-3">
-<label class="form-label">No. de Control o Nombre</label>
-<input class="form-control" placeholder="Buscar...">
-</div>
+                {% if propuesta %}
+                <hr>
+                <h5>Propuesta de aplicación</h5>
+                <table class="table table-sm align-middle mb-0">
+                    <thead><tr><th>Concepto / periodo</th><th class="text-end">Aplicado</th></tr></thead>
+                    <tbody>
+                        {% for item in propuesta.aplicaciones %}
+                        <tr><td>{{ item.obligacion.concepto }}<br><small class="text-muted">{{ item.periodo }}</small></td><td class="text-end">${{ item.importe_aplicado|floatformat:2 }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr><th>Total aplicado</th><th class="text-end">${{ propuesta.total_aplicado|floatformat:2 }}</th></tr>
+                        <tr><th>Saldo a favor</th><th class="text-end">${{ propuesta.saldo_a_favor|floatformat:2 }}</th></tr>
+                    </tfoot>
+                </table>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 
-<div class="text-center py-3">
-
-<div
-style="
-width:90px;
-height:90px;
-border-radius:50%;
-background:#b5122b;
-color:white;
-display:inline-flex;
-justify-content:center;
-align-items:center;
-font-size:2rem;
-font-weight:bold;">
-
-{% if hermano %}
-{{ hermano.nombre|first }}{{ hermano.apellido_paterno|first }}
-{% else %}
-?
-{% endif %}
-
-</div>
-
-</div>
-
-<table class="table table-sm">
-
-<tr>
-    <th>Nombre</th>
-    <td>
-        {% if hermano %}
-            {{ hermano.nombre }}
-            {{ hermano.apellido_paterno }}
-            {{ hermano.apellido_materno }}
-        {% else %}
-            —
-        {% endif %}
-    </td>
-</tr>
-
-<tr>
-    <th>No. Control</th>
-    <td>
-        {% if hermano %}
-            {{ hermano.numero_control }}
-        {% else %}
-            —
-        {% endif %}
-    </td>
-</tr>
-
-<tr>
-    <th>Grado</th>
-    <td>—</td>
-</tr>
-
-<tr>
-    <th>Estado</th>
-    <td>
-        {% if hermano %}
-            {% if hermano.activo %}
-                <span class="badge bg-success">Activo</span>
-            {% else %}
-                <span class="badge bg-danger">Inactivo</span>
-            {% endif %}
-        {% else %}
-            —
-        {% endif %}
-    </td>
-</tr>
-
-<tr>
-    <th>Obligaciones</th>
-    <td>{{ obligaciones|length }}</td>
-</tr>
-
-</table>
-
-</section>
-
-<section class="erp-card">
-
-<h4>Aplicación del Pago</h4>
-
-<form method="post">
-{% csrf_token %}
-
-<label class="form-label">Hermano</label>
-
-<select
-    name="hermano"
-    class="form-select mb-3">
-
-    {% for h in hermanos %}
-
-    <option
-        value="{{ h.id }}"
-        {% if hermano_seleccionado and h.id == hermano_seleccionado.id %}
-            selected
-        {% endif %}
-    >
-        {{ h.numero_control }} -
-        {{ h.apellido_paterno }}
-        {{ h.apellido_materno }},
-        {{ h.nombre }}
-    </option>
-
-    {% endfor %}
-
-</select>
-
-<label class="form-label">Importe recibido</label>
-<input name="importe" type="number" step="0.01" class="form-control form-control-lg mb-3">
-
-<button class="btn btn-success w-100">
-Calcular aplicación
-</button>
-
-</form>
-
-{% if propuesta %}
-<hr>
-<h5>Propuesta</h5>
-
-<table class="table table-sm">
-<thead>
-<tr>
-<th>Periodo</th>
-<th class="text-end">Aplicado</th>
-</tr>
-</thead>
-<tbody>
-{% for item in propuesta.aplicaciones %}
-<tr>
-<td>{{ item.periodo }}</td>
-<td class="text-end">${{ item.importe_aplicado }}</td>
-</tr>
-{% endfor %}
-</tbody>
-<tfoot>
-<tr>
-<th>Saldo a favor</th>
-<th class="text-end">${{ propuesta.saldo_a_favor }}</th>
-</tr>
-</tfoot>
-</table>
-{% endif %}
-
-</section>
-
-<section class="erp-card">
-
-<h4>Vista previa del Recibo</h4>
-
-<div class="border rounded p-3">
-
-<p><strong>Recibo:</strong> ----</p>
-<p><strong>Fecha:</strong> {% now "d/m/Y" %}</p>
-
-<hr>
-
-<p>El detalle del recibo aparecerá aquí conforme
-se confirme la aplicación del pago.</p>
-
-</div>
-
-<div class="d-grid gap-2 mt-3">
-<button class="btn btn-primary">Confirmar e Imprimir</button>
-<button type="button" class="btn btn-secondary">Cancelar</button>
-</div>
-
-</section>
-
+    <div class="col-lg-4">
+        <section class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h4 class="card-title">Recibo generado</h4>
+                {% if resultado and resultado.exitoso %}
+                {% with recibo=resultado.recibo %}
+                <div class="border rounded p-3 bg-light">
+                    <div class="d-flex justify-content-between"><strong>Folio</strong><span>{{ recibo.folio }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Fecha</strong><span>{{ recibo.fecha|date:"d/m/Y H:i" }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Hermano</strong><span class="text-end">{{ recibo.hermano }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Forma de pago</strong><span>{{ recibo.pago.forma_pago }}</span></div>
+                    {% if recibo.pago.referencia %}<div class="d-flex justify-content-between"><strong>Referencia</strong><span>{{ recibo.pago.referencia }}</span></div>{% endif %}
+                    <hr>
+                    {% for aplicacion in recibo.aplicaciones %}
+                    <div class="d-flex justify-content-between small"><span>{{ aplicacion.obligacion.concepto }} · {{ aplicacion.obligacion.periodo }}</span><span>${{ aplicacion.importe_aplicado|floatformat:2 }}</span></div>
+                    {% endfor %}
+                    {% if resultado.saldo_a_favor %}<div class="d-flex justify-content-between small"><span>Saldo a favor</span><span>${{ resultado.saldo_a_favor|floatformat:2 }}</span></div>{% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold"><span>Total recibido</span><span>${{ recibo.total|floatformat:2 }}</span></div>
+                </div>
+                {% endwith %}
+                {% else %}
+                <div class="border rounded p-3 text-muted">El recibo aparecerá aquí al confirmar el cobro.</div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 </div>
 
 {% endblock %}

@@ -9,9 +9,4 @@ urlpatterns = [
         views.dashboard_redirect,
         name="dashboard",
     ),
-    path(
-        "dashboard/",
-        views.dashboard_redirect,
-        name="dashboard_redirect",
-    ),
 ]

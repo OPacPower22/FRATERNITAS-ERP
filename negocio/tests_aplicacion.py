@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from negocio.services.aplicacion import (
-    proponer_aplicacion_pago,
+    calcular_propuesta,
 )
 
 
@@ -13,6 +13,7 @@ class ObligacionMock:
         saldo,
     ):
         self.nombre = nombre
+        self.periodo = nombre
         self.saldo_pendiente = Decimal(str(saldo))
 
 
@@ -35,7 +36,7 @@ obligaciones = [
 ]
 
 
-propuesta = proponer_aplicacion_pago(
+propuesta = calcular_propuesta(
 
     obligaciones,
 
@@ -53,7 +54,7 @@ for item in propuesta.aplicaciones:
 
         item.obligacion.nombre,
 
-        item.importe,
+        item.importe_aplicado,
 
     )
 
