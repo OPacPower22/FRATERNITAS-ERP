@@ -34,11 +34,6 @@ class MovimientoAdmin(admin.ModelAdmin):
             )
         }),
 
-        ("Información adicional", {
-            "fields": (
-                "justificacion",
-            )
-        }),
     )
 
     list_display = (
@@ -62,7 +57,6 @@ class MovimientoAdmin(admin.ModelAdmin):
 
     search_fields = (
         "concepto",
-        "descripcion",
         "hermano__nombre",
         "hermano__apellido_paterno",
         "hermano__apellido_materno",

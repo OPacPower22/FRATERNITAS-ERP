@@ -22,6 +22,21 @@ class Movimiento(models.Model):
         blank=True,
     )
 
+    pago = models.ForeignKey(
+        "negocio.Pago",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="movimientos_contables",
+    )
+
+    concepto_contable = models.ForeignKey(
+        "catalogos.ConceptoContable",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+
     concepto = models.CharField(max_length=200)   
 
     fecha = models.DateField()
@@ -81,7 +96,13 @@ class Movimiento(models.Model):
         super().save(*args, **kwargs)
     
     class Meta:
-        ordering = ["-fecha", "-id"]   
+        ordering = ["-fecha", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["pago", "concepto_contable"],
+                name="uq_movimiento_pago_concepto",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.concepto} - ${self.total}"
