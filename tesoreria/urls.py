@@ -13,4 +13,9 @@ urlpatterns = [
         views.emitir_recibo,
         name="cu001_emitir_recibo",
     ),
+    path(
+        "egresos/",
+        views.cu002_procesar_egreso,
+        name="cu002_procesar_egreso",
+    ),
 ]

@@ -1,0 +1,397 @@
+{% extends "base/base.html" %}
+{% load moneda %}
+
+{% block title %}CU-002 · Procesar Egreso{% endblock %}
+
+{% block content %}
+<style>
+    .cu002-table th,
+    .cu002-table td { padding-top: .45rem; padding-bottom: .45rem; }
+    .cu002-selectable-row { cursor: pointer; }
+    .cu002-selectable-row td {
+        transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+    }
+    .cu002-selectable-row:hover td { background-color: #eef8f0; }
+    .cu002-selectable-row.is-selected td { background-color: #e0f2e5; color: #14532d; }
+    .cu002-selectable-row.is-selected td:first-child { box-shadow: inset 5px 0 #198754; }
+    .cu002-selectable-row.is-selected td:nth-child(2) { font-weight: 600; }
+    .cu002-selectable-row.is-selected td:last-child { color: #198754; font-weight: 600; }
+    .cu002-checkbox,
+    .cu002-payment .form-check-input {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 3px solid #198754;
+        background-color: #fff;
+        cursor: pointer;
+        box-shadow: 0 .1rem .25rem rgba(25, 135, 84, .18);
+        transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .cu002-checkbox {
+        border-radius: .25rem;
+        margin-left: .5rem;
+    }
+    .cu002-checkbox:checked {
+        background-color: #198754;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m3 8 3 3 7-7'/%3E%3C/svg%3E");
+    }
+    .cu002-checkbox:focus-visible,
+    .cu002-payment .form-check-input:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 .25rem rgba(25, 135, 84, .25);
+    }
+    .cu002-payment .form-check { padding-top: .45rem; padding-bottom: .45rem; }
+    .cu002-payment .form-check-input {
+        width: 1.375rem;
+        height: 1.375rem;
+        border-radius: 50%;
+        margin-top: .1rem;
+    }
+    .cu002-payment .form-check-input:checked {
+        border: 6px solid #198754;
+    }
+    .cu002-payment .form-check-label { font-size: 1.1rem; padding-left: .3rem; }
+    .cu002-field-label,
+    .cu002-payment .form-label { font-size: 1.08rem; font-weight: 600; }
+    .cu002-editable {
+        border: 2px solid #6c757d;
+        padding: .7rem .8rem;
+        transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease;
+    }
+    .cu002-editable:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 .25rem rgba(25, 135, 84, .18);
+    }
+    #total-liquidar { transition: transform .18s ease, color .18s ease; }
+    #total-liquidar.cu002-total-updated { color: #146c43; transform: scale(1.04); }
+    .cu002-master-label { font-size: 1.08rem; font-weight: 600; }
+    .cu002-selection-band {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: 1rem 1.25rem;
+        background-color: #f4f6f5;
+        border-top: 3px solid #198754;
+        border-left: 5px solid #198754;
+        border-radius: .4rem;
+        box-shadow: 0 .15rem .4rem rgba(0, 0, 0, .08);
+        cursor: pointer;
+        transition: background-color .18s ease, box-shadow .18s ease;
+    }
+    .cu002-selection-band:hover { background-color: #eaf5ed; box-shadow: 0 .2rem .5rem rgba(25, 135, 84, .14); }
+    .cu002-group-card { border: 0; }
+    .cu002-group-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background-color: #f5f5f5;
+        border-left: 5px solid #b02a37;
+        border-radius: .4rem .4rem 0 0;
+        transition: background-color .18s ease;
+    }
+    .cu002-group-card.is-complete .cu002-group-header { background-color: #e8f5eb; }
+    .cu002-group-summary { min-width: 11rem; }
+    .cu002-reference:disabled { background-color: #eef0f1; color: #6c757d; cursor: not-allowed; }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">CU-002 · Procesar Egreso</h2>
+        <p class="text-muted mb-0">Seleccione los conceptos institucionales que serán liquidados en esta operación.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">← Dashboard</a>
+</div>
+
+<section class="card shadow-sm">
+    <div class="card-header">
+        <i class="bi bi-cash-stack"></i>
+        Saldos disponibles por concepto
+    </div>
+    <div class="card-body">
+        <label for="seleccionar-todos" class="cu002-selection-band mb-4">
+            <input id="seleccionar-todos" class="form-check-input cu002-checkbox m-0" type="checkbox">
+            <span class="cu002-master-label">Seleccionar toda la operación</span>
+        </label>
+
+        <section class="card cu002-group-card shadow-sm mb-4">
+            <div class="cu002-group-header">
+                    <div>
+                        <h4 class="mb-1"><i class="bi bi-bank"></i> Aportaciones a la Gran Logia</h4>
+                        <p class="text-muted mb-0">Aportaciones al Alto Cuerpo</p>
+                    </div>
+                    <div class="cu002-group-summary text-md-end">
+                        <small class="d-block text-muted">Saldo disponible para liquidar</small>
+                        <span id="gran-logia-disponible" class="d-block fs-5 fw-bold">$0.00</span>
+                    </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div class="form-check mb-0">
+                        <input id="liquidar-gran-logia" class="form-check-input cu002-checkbox grupo-master" type="checkbox" data-grupo="gran-logia">
+                        <label for="liquidar-gran-logia" class="form-check-label cu002-master-label">Liquidar todas las aportaciones a la Gran Logia</label>
+                    </div>
+                    <div class="cu002-group-summary text-md-end">
+                        <span id="gran-logia-resumen" class="d-block fw-semibold">0 de 0 conceptos</span>
+                        <span id="gran-logia-importe" class="text-success fw-semibold">$0.00</span>
+                        <span id="gran-logia-completo" class="badge text-bg-success d-none mt-1">✓ Pago completo a Gran Logia</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table cu002-table align-middle mb-0">
+                        <thead><tr><th scope="col" class="text-center">Selección</th><th scope="col">Concepto</th><th scope="col" class="text-end">Saldo por liquidar</th></tr></thead>
+                        <tbody>
+                            {% for saldo in saldos %}
+                            {% if saldo.concepto == "Membresía" or saldo.concepto == "Revista" or saldo.concepto == "Conferencia Gran Logia" or saldo.concepto == "Confederación de Grandes Logias Regulares de la República Mexicana" or saldo.concepto == "CMI" or saldo.concepto == "Confederación Masónica Interamericana" or saldo.concepto == "Servicios Recibidos" or saldo.concepto == "Fondo Contingencia Anual" or saldo.concepto == "Fondo de Contingencia (Anual)" or saldo.concepto == "Post Mortem" or saldo.concepto == "Aportación mensual Post Mortem" or saldo.concepto == "Defunción" %}
+                            <tr class="cu002-selectable-row" tabindex="0" aria-selected="false">
+                                <td class="text-center"><input class="form-check-input cu002-checkbox saldo-checkbox" type="checkbox" data-grupo="gran-logia" data-saldo="{{ saldo.saldo|stringformat:'f' }}" aria-label="Seleccionar {{ saldo.concepto }}"></td>
+                                <td>{% if saldo.concepto == "Conferencia Gran Logia" or saldo.concepto == "Confederación de Grandes Logias Regulares de la República Mexicana" %}Confederación de Grandes Logias Regulares de la República Mexicana{% elif saldo.concepto == "CMI" or saldo.concepto == "Confederación Masónica Interamericana" %}Confederación Masónica Interamericana{% elif saldo.concepto == "Fondo Contingencia Anual" or saldo.concepto == "Fondo de Contingencia (Anual)" %}Fondo de Contingencia (Anual){% elif saldo.concepto == "Post Mortem" or saldo.concepto == "Aportación mensual Post Mortem" %}Aportación mensual Post Mortem{% else %}{{ saldo.concepto }}{% endif %}</td>
+                                <td class="text-end">{{ saldo.saldo|moneda }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="card cu002-group-card shadow-sm">
+            <div class="cu002-group-header">
+                    <div>
+                        <h4 class="mb-1"><i class="bi bi-house-door"></i> Aportaciones Locales</h4>
+                        <p class="text-muted mb-0">Aportaciones Locales</p>
+                    </div>
+                    <div class="cu002-group-summary text-md-end">
+                        <small class="d-block text-muted">Saldo disponible para liquidar</small>
+                        <span id="locales-disponible" class="d-block fs-5 fw-bold">$0.00</span>
+                    </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div class="form-check mb-0">
+                        <input id="liquidar-locales" class="form-check-input cu002-checkbox grupo-master" type="checkbox" data-grupo="locales">
+                        <label for="liquidar-locales" class="form-check-label cu002-master-label">Liquidar todas las aportaciones Locales</label>
+                    </div>
+                    <div class="cu002-group-summary text-md-end">
+                        <span id="locales-resumen" class="d-block fw-semibold">0 de 0 conceptos</span>
+                        <span id="locales-importe" class="text-success fw-semibold">$0.00</span>
+                        <span id="locales-completo" class="badge text-bg-success d-none mt-1">✓ Pago completo Local</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table cu002-table align-middle mb-0">
+                        <thead><tr><th scope="col" class="text-center">Selección</th><th scope="col">Concepto</th><th scope="col" class="text-end">Saldo por liquidar</th></tr></thead>
+                        <tbody>
+                            {% for saldo in saldos %}
+                            {% if saldo.concepto == "Aportación Fraternidad" or saldo.concepto == "Aniversario FRATERNIDAD No. 1" or saldo.concepto == "Aportación AJEF" or saldo.concepto == "Aportación al Taller AJEF" or saldo.concepto == "Aportación Tesoro" or saldo.concepto == "Aportación al Tesoro de la Logia" %}
+                            <tr class="cu002-selectable-row" tabindex="0" aria-selected="false">
+                                <td class="text-center"><input class="form-check-input cu002-checkbox saldo-checkbox" type="checkbox" data-grupo="locales" data-saldo="{{ saldo.saldo|stringformat:'f' }}" aria-label="Seleccionar {{ saldo.concepto }}"></td>
+                                <td>{% if saldo.concepto == "Aportación Fraternidad" or saldo.concepto == "Aniversario FRATERNIDAD No. 1" %}Aniversario FRATERNIDAD No. 1{% elif saldo.concepto == "Aportación AJEF" or saldo.concepto == "Aportación al Taller AJEF" %}Aportación al Taller AJEF{% elif saldo.concepto == "Aportación Tesoro" or saldo.concepto == "Aportación al Tesoro de la Logia" %}Aportación al Tesoro de la Logia{% endif %}</td>
+                                <td class="text-end">{{ saldo.saldo|moneda }}</td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="card bg-light border-top border-4 border-success shadow-sm mt-4">
+            <div class="card-body py-4 text-center">
+                <div class="fw-semibold text-uppercase text-success">Total a liquidar</div>
+                <span id="total-liquidar" class="d-block fw-bold text-success" style="font-size: 2.25rem;">$0.00</span>
+                <small class="text-muted">Conceptos seleccionados: <span id="conceptos-seleccionados">0</span></small>
+                <div id="total-indicadores" class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                    <span id="total-gran-logia-completo" class="badge text-bg-success d-none">✓ Pago completo a Gran Logia</span>
+                    <span id="total-locales-completo" class="badge text-bg-success d-none">✓ Pago completo Local</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="row g-3 mt-2">
+            <div class="col-12 cu002-payment">
+                <span class="form-label d-block">Forma de pago</span>
+                <div class="d-flex flex-wrap gap-4">
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="radio" name="forma_pago" id="transferencia" value="TRANSFERENCIA">
+                    <label class="form-check-label" for="transferencia">Transferencia</label>
+                </div>
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="radio" name="forma_pago" id="cheque" value="CHEQUE">
+                    <label class="form-check-label" for="cheque">Cheque</label>
+                </div>
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="radio" name="forma_pago" id="efectivo" value="EFECTIVO">
+                    <label class="form-check-label" for="efectivo">Efectivo</label>
+                </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <label for="referencia" class="form-label cu002-field-label">Referencia</label>
+                <input id="referencia" type="text" class="form-control cu002-editable cu002-reference">
+            </div>
+            <div class="col-12">
+                <label for="observaciones" class="form-label cu002-field-label">Observaciones</label>
+                <textarea id="observaciones" class="form-control cu002-editable" rows="4"></textarea>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+            <a href="#" class="btn btn-success px-5 py-3 fw-semibold text-uppercase">
+                <i class="bi bi-cash-stack"></i>
+                Procesar Egreso
+            </a>
+        </div>
+    </div>
+</section>
+<script>
+    const checkboxes = document.querySelectorAll(".saldo-checkbox");
+    const totalLiquidar = document.getElementById("total-liquidar");
+    const conceptosSeleccionados = document.getElementById("conceptos-seleccionados");
+
+    function actualizarTotalLiquidar() {
+        const seleccionados = Array.from(checkboxes)
+            .filter((checkbox) => checkbox.checked);
+        const total = seleccionados
+            .reduce((acumulado, checkbox) => acumulado + Number(checkbox.dataset.saldo), 0);
+
+        totalLiquidar.textContent = `$${total.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        })}`;
+        conceptosSeleccionados.textContent = seleccionados.length;
+    }
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", actualizarTotalLiquidar);
+        checkbox.addEventListener("change", () => {
+            totalLiquidar.classList.remove("cu002-total-updated");
+            void totalLiquidar.offsetWidth;
+            totalLiquidar.classList.add("cu002-total-updated");
+        });
+    });
+
+    document.querySelectorAll(".cu002-selectable-row").forEach((fila) => {
+        const checkbox = fila.querySelector(".saldo-checkbox");
+
+        function actualizarSeleccionVisual() {
+            fila.classList.toggle("is-selected", checkbox.checked);
+            fila.setAttribute("aria-selected", checkbox.checked);
+        }
+
+        fila.addEventListener("click", (evento) => {
+            if (evento.target === checkbox) {
+                return;
+            }
+            checkbox.click();
+        });
+
+        fila.addEventListener("keydown", (evento) => {
+            if (evento.key === "Enter" || evento.key === " ") {
+                evento.preventDefault();
+                checkbox.click();
+            }
+        });
+
+        checkbox.addEventListener("change", actualizarSeleccionVisual);
+    });
+
+    const selectorTodos = document.getElementById("seleccionar-todos");
+    const grupos = ["gran-logia", "locales"];
+
+    function conceptosDelGrupo(grupo) {
+        return Array.from(document.querySelectorAll(`.saldo-checkbox[data-grupo="${grupo}"]`));
+    }
+
+    function formatoMoneda(importe) {
+        return `$${importe.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        })}`;
+    }
+
+    function actualizarResumenGrupo(grupo) {
+        const conceptos = conceptosDelGrupo(grupo);
+        const seleccionados = conceptos.filter((checkbox) => checkbox.checked);
+        const importe = seleccionados.reduce(
+            (acumulado, checkbox) => acumulado + Number(checkbox.dataset.saldo),
+            0,
+        );
+        const disponible = conceptos.reduce(
+            (acumulado, checkbox) => acumulado + Number(checkbox.dataset.saldo),
+            0,
+        );
+        const master = document.querySelector(`.grupo-master[data-grupo="${grupo}"]`);
+        const completo = seleccionados.length === conceptos.length && conceptos.length > 0;
+
+        master.checked = conceptos.length > 0 && seleccionados.length === conceptos.length;
+        master.indeterminate = seleccionados.length > 0 && seleccionados.length < conceptos.length;
+        document.getElementById(`${grupo}-resumen`).textContent = `${seleccionados.length} de ${conceptos.length} conceptos`;
+        document.getElementById(`${grupo}-importe`).textContent = formatoMoneda(importe);
+        document.getElementById(`${grupo}-disponible`).textContent = formatoMoneda(disponible);
+        document.getElementById(`${grupo}-completo`).classList.toggle(
+            "d-none",
+            !completo,
+        );
+        document.getElementById(`total-${grupo}-completo`).classList.toggle("d-none", !completo);
+        master.closest(".cu002-group-card").classList.toggle("is-complete", completo);
+    }
+
+    function actualizarSelectoresMaestros() {
+        grupos.forEach(actualizarResumenGrupo);
+        const seleccionados = Array.from(checkboxes).filter((checkbox) => checkbox.checked);
+
+        selectorTodos.checked = checkboxes.length > 0 && seleccionados.length === checkboxes.length;
+        selectorTodos.indeterminate = seleccionados.length > 0 && seleccionados.length < checkboxes.length;
+    }
+
+    function cambiarSeleccion(conceptos, seleccionar) {
+        conceptos.forEach((checkbox) => {
+            if (checkbox.checked !== seleccionar) {
+                checkbox.checked = seleccionar;
+                checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        });
+    }
+
+    document.querySelectorAll(".grupo-master").forEach((master) => {
+        master.addEventListener("change", () => {
+            cambiarSeleccion(conceptosDelGrupo(master.dataset.grupo), master.checked);
+            actualizarSelectoresMaestros();
+        });
+    });
+
+    selectorTodos.addEventListener("change", () => {
+        cambiarSeleccion(Array.from(checkboxes), selectorTodos.checked);
+        actualizarSelectoresMaestros();
+    });
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", actualizarSelectoresMaestros);
+    });
+
+    const referencia = document.getElementById("referencia");
+    const efectivo = document.getElementById("efectivo");
+
+    function actualizarReferencia() {
+        const esEfectivo = efectivo.checked;
+        referencia.disabled = esEfectivo;
+        referencia.placeholder = esEfectivo ? "No aplica para pagos en efectivo" : "";
+        if (esEfectivo) {
+            referencia.value = "";
+        }
+    }
+
+    document.querySelectorAll('input[name="forma_pago"]').forEach((opcion) => {
+        opcion.addEventListener("change", actualizarReferencia);
+    });
+
+    actualizarSelectoresMaestros();
+    actualizarReferencia();
+</script>
+{% endblock %}
+

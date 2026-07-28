@@ -9,6 +9,7 @@ from negocio.domain.cu_002_cobro_integral import ejecutar_cobro
 from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
 from negocio.services.dashboard import obtener_indicadores
+from negocio.services.egresos import obtener_saldos
 
 
 @login_required
@@ -18,6 +19,22 @@ def index(request):
         request,
         "core/dashboard.html",
         obtener_indicadores(),
+    )
+
+
+@login_required
+def cu002_procesar_egreso(request):
+    """Muestra los saldos disponibles para el procesamiento de egresos."""
+    saldos = obtener_saldos()
+    total_saldos = sum((item["saldo"] for item in saldos), Decimal("0.00"))
+
+    return render(
+        request,
+        "tesoreria/cu002_procesar_egreso.html",
+        {
+            "saldos": saldos,
+            "total_saldos": total_saldos,
+        },
     )
 
 
