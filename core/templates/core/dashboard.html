@@ -1,28 +1,47 @@
 {% extends "base/base.html" %}
 
 {% block title %}
-Centro de Operaciones
-{% endblock %}
+Centro de Operaciones{% endblock %}
 
 {% block content %}
 
 <!-- INDICADORES FINANCIEROS -->
+{% load moneda %}
+
+<!-- ===================================================== -->
+<!-- INDICADORES -->
+<!-- ===================================================== -->
 
 <div class="row g-3 mb-4">
 
-    <div class="col-md-4">
+    <div class="col-lg-4">
 
-        <div class="card dashboard-card indicador">
+        <div class="card dashboard-card">
 
             <div class="card-body">
 
-                <small class="text-muted">Saldo en Caja</small>
+                <div class="d-flex justify-content-between align-items-center">
 
-                <h2 class="mt-2 text-success">
+                    <div>
 
-                    $ {{ saldo_caja|default:"0.00" }}
+                        <small class="text-muted">
 
-                </h2>
+                            Saldo en Caja
+
+                        </small>
+
+                        
+                        <h2 class="text-success fw-bold mt-2">
+
+                            {{ saldo_caja|moneda }}
+
+                        </h2>
+
+                    </div>
+
+                    <i class="bi bi-wallet2 fs-1 text-success"></i>
+
+                </div>
 
             </div>
 
@@ -30,23 +49,33 @@ Centro de Operaciones
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-lg-4">
 
-        <div class="card dashboard-card indicador">
+        <div class="card dashboard-card">
 
             <div class="card-body">
 
-                <small class="text-muted">
+                <div class="d-flex justify-content-between align-items-center">
 
-                    Ingresos del Mes
+                    <div>
 
-                </small>
+                        <small class="text-muted">
 
-                <h2 class="mt-2 text-primary">
+                            Ingresos del Mes
 
-                    $ {{ ingresos_mes|default:"0.00" }}
+                        </small>
 
-                </h2>
+                        <h2 class="text-primary fw-bold mt-2">
+
+                            {{ ingresos_mes|moneda }}
+
+                        </h2>
+
+                    </div>
+
+                    <i class="bi bi-graph-up-arrow fs-1 text-primary"></i>
+
+                </div>
 
             </div>
 
@@ -54,23 +83,33 @@ Centro de Operaciones
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-lg-4">
 
-        <div class="card dashboard-card indicador">
+        <div class="card dashboard-card">
 
             <div class="card-body">
 
-                <small class="text-muted">
+                <div class="d-flex justify-content-between align-items-center">
 
-                    Egresos del Mes
+                    <div>
 
-                </small>
+                        <small class="text-muted">
 
-                <h2 class="mt-2 text-danger">
+                            Egresos del Mes
 
-                    $ {{ egresos_mes|default:"0.00" }}
+                        </small>
 
-                </h2>
+                        <h2 class="text-danger fw-bold mt-2">
+
+                            {{ egresos_mes|moneda }}
+
+                        </h2>
+
+                    </div>
+
+                    <i class="bi bi-graph-down-arrow fs-1 text-danger"></i>
+
+                </div>
 
             </div>
 
@@ -80,33 +119,39 @@ Centro de Operaciones
 
 </div>
 
+<!-- ===================================================== -->
 <!-- OPERACIONES -->
+<!-- ===================================================== -->
 
-<div class="card shadow-sm mb-4">
+<div class="card dashboard-card mb-4">
 
     <div class="card-header">
 
-        <strong>
+        <i class="bi bi-grid-fill"></i>
 
-            Centro de Operaciones
-
-        </strong>
+        Centro de Operaciones
 
     </div>
 
     <div class="card-body">
 
-        <div class="row g-3">
+        <div class="row g-4">
 
             <div class="col-md-3">
 
                 <a
                     href="{% url 'cu001_emitir_recibo' %}"
-                    class="btn btn-success w-100 py-4">
+                    class="btn btn-success btn-operacion w-100">
 
-                    <i class="bi bi-receipt fs-2 d-block mb-2"></i>
+                    <i class="bi bi-receipt-cutoff"></i>
 
-                    Emitir Recibo
+                    Procesar Ingreso
+
+                    <small>
+
+                        Control de Capitas
+
+                    </small>
 
                 </a>
 
@@ -115,12 +160,18 @@ Centro de Operaciones
             <div class="col-md-3">
 
                 <button
-                    class="btn btn-danger w-100 py-4">
+                    class="btn btn-danger btn-operacion w-100">
 
-                    <i class="bi bi-cash-coin fs-2 d-block mb-2"></i>
+                    <i class="bi bi-cash-stack"></i>
 
                     Registrar Egreso
 
+                    <small>
+
+                        Salidas de caja
+
+                    </small>
+
                 </button>
 
             </div>
@@ -128,12 +179,18 @@ Centro de Operaciones
             <div class="col-md-3">
 
                 <button
-                    class="btn btn-primary w-100 py-4">
+                    class="btn btn-primary btn-operacion w-100">
 
-                    <i class="bi bi-people-fill fs-2 d-block mb-2"></i>
+                    <i class="bi bi-people-fill"></i>
 
                     Expedientes
 
+                    <small>
+
+                        Hermanos
+
+                    </small>
+
                 </button>
 
             </div>
@@ -141,11 +198,17 @@ Centro de Operaciones
             <div class="col-md-3">
 
                 <button
-                    class="btn btn-secondary w-100 py-4">
+                    class="btn btn-secondary btn-operacion w-100">
 
-                    <i class="bi bi-bar-chart-line-fill fs-2 d-block mb-2"></i>
+                    <i class="bi bi-bar-chart-line-fill"></i>
 
                     Reportes
+
+                    <small>
+
+                        Información financiera
+
+                    </small>
 
                 </button>
 
@@ -157,27 +220,77 @@ Centro de Operaciones
 
 </div>
 
-<!-- INFORMACIÓN -->
+<!-- ===================================================== -->
+<!-- RESUMEN -->
+<!-- ===================================================== -->
 
-<div class="row g-3">
+<div class="row g-4">
 
-    <div class="col-md-4">
+    <div class="col-lg-6">
 
-        <div class="card dashboard-card">
+        <div class="card dashboard-card h-100">
+
+            <div class="card-header">
+
+                Estado Administrativo
+
+            </div>
 
             <div class="card-body">
 
-                <small class="text-muted">
+                <div class="d-flex justify-content-between mb-3">
 
-                    Hermanos a Plomo
+                    <span>
 
-                </small>
+                        <i class="bi bi-check-circle-fill text-success"></i>
 
-                <h2 class="text-success">
+                        Hermanos a Plomo
 
-                    {{ hermanos_corriente|default:"0" }}
+                    </span>
 
-                </h2>
+                    <strong>
+
+                        {{ hermanos_corriente }}
+
+                    </strong>
+
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span>
+
+                        <i class="bi bi-exclamation-circle-fill text-danger"></i>
+
+                        Hermanos Desplomados
+
+                    </span>
+
+                    <strong>
+
+                        {{ hermanos_deudores }}
+
+                    </strong>
+
+                </div>
+
+                <div class="d-flex justify-content-between">
+
+                    <span>
+
+                        <i class="bi bi-people-fill text-primary"></i>
+
+                        Hermanos Registrados
+
+                    </span>
+
+                    <strong>
+
+                        {{ total_hermanos }}
+
+                    </strong>
+
+                </div>
 
             </div>
 
@@ -185,47 +298,59 @@ Centro de Operaciones
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-lg-6">
 
-        <div class="card dashboard-card">
+        <div class="card dashboard-card h-100">
 
-            <div class="card-body">
+            <div class="card-header">
 
-                <small class="text-muted">
-
-                    Hermanos Desplomados
-
-                </small>
-
-                <h2 class="text-danger">
-
-                    {{ hermanos_deudores|default:"0" }}
-
-                </h2>
+                Resumen Financiero
 
             </div>
 
-        </div>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <div class="card dashboard-card">
-
             <div class="card-body">
 
-                <small class="text-muted">
+                <div class="d-flex justify-content-between mb-3">
 
-                    Hermanos Registrados
+                    <span>Ingresos</span>
 
-                </small>
+                    <strong class="text-primary">
 
-                <h2>
+                        {{ ingresos_mes|moneda }}
 
-                    {{ total_hermanos|default:"0" }}
+                    </strong>
 
-                </h2>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span>Egresos</span>
+
+                    <strong class="text-danger">
+
+                        {{ egresos_mes|moneda }}
+
+                    </strong>
+
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+
+                    <span class="fw-bold">
+
+                        Saldo
+
+                    </span>
+
+                    <strong class="text-success fs-5">
+
+                        {{ saldo_caja|moneda }}
+
+                    </strong>
+
+                </div>
 
             </div>
 

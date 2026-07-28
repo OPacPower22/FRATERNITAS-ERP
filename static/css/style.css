@@ -23,15 +23,21 @@ body{
 header{
     background:#fff;
     border-bottom:4px solid var(--vino);
+    padding:0;
+}
+
+header .container{
+    padding-top:.60rem!important;
+    padding-bottom:.60rem!important;
 }
 
 .logo-principal{
-    width:180px;
+    width:150px;
     height:auto;
 }
 
 .titulo-logia{
-    font-size:1.30rem;
+    font-size:1.10rem;
     letter-spacing:3px;
     color:#555;
     margin-bottom:.15rem;
@@ -39,7 +45,7 @@ header{
 }
 
 .nombre-logia{
-    font-size:3.6rem;
+    font-size:3rem;
     font-weight:800;
     color:var(--vino);
     letter-spacing:1px;
@@ -55,7 +61,7 @@ header{
 }
 
 .datos-usuario{
-    font-size:.95rem;
+    font-size:1rem;
 }
 
 /* ---------- Contenido ---------- */
@@ -67,17 +73,20 @@ main.container{
 
 /* ---------- Tarjetas ---------- */
 
-.dashboard-card,
-.card{
+.dashboard-card .card-body{
+    position: relative;
+    padding: 1.2rem 1.4rem;
     border:none;
-    border-radius:18px;
+    border-radius:16px;
     background:#fff;
-    box-shadow:0 8px 18px rgba(0,0,0,.08);
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+    margin-bottom:18px;
 }
 
 .indicador h2{
     font-size:2.35rem;
     font-weight:700;
+    position: relative;
 }
 
 /* ---------- Centro de Operaciones ---------- */
@@ -89,14 +98,14 @@ main.container{
 }
 
 .btn-operacion{
-    height:140px;
-    border-radius:16px;
+    height:120px;
+    border-radius:14px;
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
     gap:10px;
-    font-size:1.35rem;
+    font-size:1rem;
     font-weight:600;
     transition:.2s ease;
 }
@@ -135,7 +144,8 @@ main.container{
 /* ---------- Footer ---------- */
 
 footer{
-    margin-top:2rem;
+    margin-top:10px;
+    padding-bottom:8px;
     color:#666;
     font-size:.92rem;
 }
@@ -160,4 +170,79 @@ footer{
     .erp-grid{
         grid-template-columns:1fr;
     }
+}
+
+/* ==========================================
+   Layout principal ERP
+========================================== */
+
+.erp-main{
+
+    width:96%;
+
+    max-width:1700px;
+
+    margin:18px auto;
+
+}
+
+.indicador{
+
+    min-height:120px;
+
+}
+
+.indicador .card-body{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+html,
+body{
+
+    height:100%;
+
+}
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.erp-main{
+
+    flex:1;
+
+    width:min(96%,1700px);
+
+    margin:12px auto;
+
+}
+
+footer{
+
+    margin-top:auto;
+
+}
+
+.nombre-sistema{
+
+    color:var(--vino);
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin:.35rem 0;
+
 }

@@ -8,12 +8,17 @@ from miembros.models import Hermano
 from negocio.domain.cu_002_cobro_integral import ejecutar_cobro
 from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
+from negocio.services.dashboard import obtener_indicadores
 
 
 @login_required
 def index(request):
     """Muestra el dashboard institucional de Tesorería."""
-    return render(request, "core/dashboard.html")
+    return render(
+        request,
+        "core/dashboard.html",
+        obtener_indicadores(),
+    )
 
 
 def _obligaciones_pendientes(hermano):
