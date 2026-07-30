@@ -1,0 +1,45 @@
+{% extends "base/base.html" %}
+
+{% block title %}EXP-001 · Expedientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">EXP-001 · Expediente del Hermano</h1>
+        <p class="text-muted mb-0">Fuente oficial de consulta de miembros.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-md-8">
+                <label class="visually-hidden" for="busqueda">Buscar hermano</label>
+                <input id="busqueda" class="form-control" type="search" name="q" value="{{ consulta }}" placeholder="Número de miembro, nombre o apellidos">
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Buscar</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Miembro</th><th>Nombre</th><th>Grado</th><th>Estatus</th><th></th></tr></thead>
+                <tbody>
+                    {% for hermano in hermanos %}
+                    <tr>
+                        <td>{{ hermano.numero_control }}</td>
+                        <td>{{ hermano.nombre }} {{ hermano.apellido_paterno }} {{ hermano.apellido_materno }}</td>
+                        <td>{{ hermano.grado }}</td>
+                        <td>{{ hermano.get_estatus_display }}</td>
+                        <td class="text-end"><a class="btn btn-outline-primary btn-sm" href="{% url 'miembros:expediente_detalle' hermano.id %}">Abrir expediente</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No se encontraron hermanos.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

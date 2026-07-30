@@ -1,0 +1,78 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% load moneda %}
+
+{% block title %}EXP-001 · {{ resumen.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex flex-column flex-md-row gap-3 align-items-md-center">
+        {% if resumen.fotografia %}
+        <img src="{{ resumen.fotografia.url }}" class="rounded-circle border" width="112" height="112" style="object-fit:cover" alt="{{ resumen.nombre_completo }}">
+        {% else %}
+        <img src="{% static 'img/silueta-hermano.svg' %}" class="rounded-circle border" width="112" height="112" alt="Silueta institucional">
+        {% endif %}
+        <div class="flex-grow-1">
+            <p class="text-muted mb-1">EXP-001 · Expediente del Hermano</p>
+            <h1 class="h2 mb-1">{{ resumen.nombre_completo }}</h1>
+            <span class="me-3">Miembro: <strong>{{ resumen.numero_control }}</strong></span>
+            <span class="me-3">{{ resumen.grado }}</span>
+            <span class="badge text-bg-secondary">{{ resumen.estatus_display }}</span>
+        </div>
+        <a class="btn btn-outline-secondary" href="{% url 'miembros:lista_expedientes' %}"><i class="bi bi-arrow-left"></i> Expedientes</a>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" id="expediente-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#generales" type="button">Datos generales</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#logial" type="button">Información logial</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#finanzas" type="button">Historial financiero</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#recibos" type="button">Recibos</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#documentos" type="button">Documentos</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#observaciones" type="button">Observaciones</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#auditoria" type="button">Auditoría</button></li>
+</ul>
+
+<div class="tab-content">
+    <section class="tab-pane fade show active" id="generales">
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="row g-3">
+            <div class="col-md-4"><small class="text-muted">Fecha de nacimiento</small><div>{{ hermano.fecha_nacimiento|date:"d/m/Y"|default:"—" }}{% if edad is not None %} · {{ edad }} años{% endif %}</div></div>
+            <div class="col-md-4"><small class="text-muted">Lugar de nacimiento</small><div>{{ hermano.lugar_nacimiento|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">CURP / RFC</small><div>{{ hermano.curp|default:"—" }} / {{ hermano.rfc|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Profesión / ocupación</small><div>{{ hermano.profesion|default:"—" }} / {{ hermano.ocupacion|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Estado civil</small><div>{{ hermano.get_estado_civil_display|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Teléfono / correo</small><div>{{ hermano.telefono|default:hermano.celular|default:"—" }} · {{ hermano.correo|default:"—" }}</div></div>
+            <div class="col-md-8"><small class="text-muted">Domicilio</small><div>{{ hermano.direccion|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Ingreso</small><div>{{ hermano.fecha_ingreso|date:"d/m/Y"|default:"—" }} · {{ resumen.tipo_ingreso_display }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Iniciación</small><div>{{ hermano.fecha_iniciacion|date:"d/m/Y"|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Aumento de salario</small><div>{{ hermano.fecha_aumento|date:"d/m/Y"|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Exaltación</small><div>{{ hermano.fecha_exaltacion|date:"d/m/Y"|default:"—" }}</div></div>
+            <div class="col-md-4"><small class="text-muted">Antigüedad masónica</small><div>{% if antiguedad_masonica is not None %}{{ antiguedad_masonica }} años{% else %}—{% endif %}</div></div>
+            <div class="col-md-4"><small class="text-muted">Estado actual</small><div>{{ resumen.estatus_display }}</div></div>
+        </div></div></div>
+    </section>
+
+    <section class="tab-pane fade" id="logial">
+        <div class="row g-3"><div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-body"><h2 class="h5">Adscripción actual</h2>{% if adscripcion_actual %}<dl class="row mb-0"><dt class="col-4">Logia</dt><dd class="col-8">{{ adscripcion_actual.logia.nombre }}</dd><dt class="col-4">Número</dt><dd class="col-8">{{ adscripcion_actual.logia.numero|default:"—" }}</dd><dt class="col-4">Oriente</dt><dd class="col-8">{{ adscripcion_actual.logia.oriente|default:"—" }}</dd><dt class="col-4">Rito</dt><dd class="col-8">{{ adscripcion_actual.logia.rito|default:"—" }}</dd></dl>{% else %}<p class="text-muted mb-0">Sin adscripción registrada.</p>{% endif %}</div></div></div>
+        <div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-body"><h2 class="h5">Cargos actuales</h2>{% for cargo in cargos_actuales %}<p class="mb-2"><strong>{{ cargo.cargo }}</strong><br><small class="text-muted">{{ cargo.periodo_inicio|date:"d/m/Y"|default:"—" }} a {{ cargo.periodo_fin|date:"d/m/Y"|default:"Vigente" }}</small></p>{% empty %}<p class="text-muted mb-0">Sin cargo vigente.</p>{% endfor %}</div></div></div></div>
+        <div class="row g-3 mt-0"><div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Cargos desempeñados</h2>{% for cargo in cargos_desempenados %}<div>{{ cargo.cargo }} <small class="text-muted">{{ cargo.periodo_inicio|date:"Y"|default:"—" }}–{{ cargo.periodo_fin|date:"Y"|default:"Actual" }}</small></div>{% empty %}<p class="text-muted mb-0">Sin registros.</p>{% endfor %}</div></div></div>
+        <div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Comisiones</h2>{% for comision in comisiones %}<div>{{ comision.nombre }}</div>{% empty %}<p class="text-muted mb-0">Sin registros.</p>{% endfor %}</div></div></div>
+        <div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Condecoraciones y reconocimientos</h2>{% for distincion in distinciones %}<div>{{ distincion.nombre }} <small class="text-muted">{{ distincion.get_tipo_display }}</small></div>{% empty %}<p class="text-muted mb-0">Sin registros.</p>{% endfor %}</div></div></div></div>
+    </section>
+
+    <section class="tab-pane fade" id="finanzas">
+        <div class="row g-3 mb-3"><div class="col-md-3"><div class="card border-0 shadow-sm"><small class="text-muted">Adeudo actual</small><strong class="fs-4">{{ resumen.adeudo_actual|moneda }}</strong></div></div><div class="col-md-3"><div class="card border-0 shadow-sm"><small class="text-muted">Saldo pendiente</small><strong class="fs-4">{{ saldo_actual|moneda }}</strong></div></div><div class="col-md-3"><div class="card border-0 shadow-sm"><small class="text-muted">Último pago</small><strong>{% if resumen.ultimo_pago %}{{ resumen.ultimo_pago.importe|moneda }}{% else %}—{% endif %}</strong><small>{{ fecha_ultimo_pago|date:"d/m/Y"|default:"" }}</small></div></div><div class="col-md-3"><div class="card border-0 shadow-sm"><small class="text-muted">Semáforo</small><strong class="fs-5 {% if semaforo_financiero == 'VERDE' %}text-success{% elif semaforo_financiero == 'AMARILLO' %}text-warning{% else %}text-danger{% endif %}">{{ semaforo_financiero }}</strong></div></div></div>
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body row g-3"><div class="col-md-4"><small class="text-muted">Último recibo</small><div>{% if ultimo_recibo %}{{ ultimo_recibo.folio_formateado }}{% else %}—{% endif %}</div></div><div class="col-md-4"><small class="text-muted">Pagado en ejercicio{% if ejercicio_activo %} {{ ejercicio_activo.nombre }}{% endif %}</small><div>{{ total_pagado_ejercicio|moneda }}</div></div><div class="col-md-4"><small class="text-muted">Total histórico pagado</small><div>{{ total_pagado_historico|moneda }}</div></div></div></div>
+        <div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Movimientos</h2><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-end">Cargo</th><th class="text-end">Abono</th><th class="text-end">Saldo</th><th>Recibo</th><th>Estado</th></tr></thead><tbody>{% for movimiento in movimientos %}<tr><td>{{ movimiento.fecha|date:"d/m/Y" }}</td><td>{{ movimiento.concepto }}</td><td class="text-end">{{ movimiento.cargo|moneda }}</td><td class="text-end">{{ movimiento.abono|moneda }}</td><td class="text-end">{{ movimiento.saldo|moneda }}</td><td>{% if movimiento.recibo %}{{ movimiento.recibo.folio_formateado }}{% else %}—{% endif %}</td><td>{{ movimiento.estado }}</td></tr>{% empty %}<tr><td colspan="7" class="text-center text-muted">Sin movimientos.</td></tr>{% endfor %}</tbody></table></div></div></div>
+    </section>
+
+    <section class="tab-pane fade" id="recibos"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Recibos emitidos</h2><div class="table-responsive"><table class="table"><thead><tr><th>Número</th><th>Fecha</th><th>Concepto</th><th class="text-end">Importe</th><th>Estado</th><th></th></tr></thead><tbody>{% for recibo in recibos %}<tr><td>{{ recibo.folio_formateado }}</td><td>{{ recibo.fecha_emision|date:"d/m/Y" }}</td><td>Pago registrado</td><td class="text-end">{{ recibo.pago.importe|moneda }}</td><td>{{ recibo.get_estado_display }}</td><td class="text-end"><a class="btn btn-outline-primary btn-sm" href="{% url 'miembros:ver_recibo' recibo.id %}">Ver</a><a class="btn btn-outline-secondary btn-sm" target="_blank" href="{% url 'miembros:ver_recibo' recibo.id %}?imprimir=1">Imprimir</a>{% if hermano.correo %}<a class="btn btn-outline-secondary btn-sm" href="mailto:{{ hermano.correo }}?subject=Recibo%20{{ recibo.folio_formateado }}">Reenviar</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="6" class="text-center text-muted">Sin recibos emitidos.</td></tr>{% endfor %}</tbody></table></div></div></div></section>
+
+    <section class="tab-pane fade" id="documentos"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Documentos del hermano</h2><p class="text-muted">La fotografía se administra desde los datos generales.</p><div class="table-responsive"><table class="table"><thead><tr><th>Tipo</th><th>Nombre</th><th>Fecha de carga</th><th></th></tr></thead><tbody>{% for documento in documentos %}<tr><td>{{ documento.get_tipo_display }}</td><td>{{ documento.nombre }}</td><td>{{ documento.fecha_carga|date:"d/m/Y H:i" }}</td><td class="text-end"><a class="btn btn-outline-primary btn-sm" href="{% url 'miembros:descargar_documento' documento.id %}">Descargar</a></td></tr>{% empty %}<tr><td colspan="4" class="text-center text-muted">Sin documentos registrados.</td></tr>{% endfor %}</tbody></table></div></div></div></section>
+
+    <section class="tab-pane fade" id="observaciones"><div class="row g-3"><div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Notas administrativas</h2>{% for nota in notas_administrativas %}<p>{{ nota.contenido }}<br><small class="text-muted">{{ nota.creada_en|date:"d/m/Y H:i" }}</small></p>{% empty %}<p class="text-muted">Sin notas.</p>{% endfor %}</div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Notas disciplinarias</h2>{% for nota in notas_disciplinarias %}<p>{{ nota.contenido }}<br><small class="text-muted">{{ nota.creada_en|date:"d/m/Y H:i" }}</small></p>{% empty %}<p class="text-muted">Sin notas.</p>{% endfor %}</div></div></div><div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Observaciones generales</h2><p>{{ hermano.observaciones|default:"Sin observaciones generales." }}</p>{% for nota in notas_generales %}<p>{{ nota.contenido }}</p>{% endfor %}</div></div></div></div><div class="card border-0 shadow-sm mt-3"><div class="card-body"><h2 class="h5">Bitácora</h2>{% for evento in bitacora %}<div class="border-bottom py-2"><strong>{{ evento.accion }}</strong> · {{ evento.fecha|date:"d/m/Y H:i" }}<br><small>{{ evento.descripcion|default:"Sin detalle." }}</small></div>{% empty %}<p class="text-muted mb-0">Sin eventos registrados.</p>{% endfor %}</div></div></section>
+
+    <section class="tab-pane fade" id="auditoria"><div class="card border-0 shadow-sm"><div class="card-body"><dl class="row mb-0"><dt class="col-md-3">Fecha de creación</dt><dd class="col-md-9">{{ hermano.fecha_alta|date:"d/m/Y H:i" }}</dd><dt class="col-md-3">Última actualización</dt><dd class="col-md-9">{{ hermano.fecha_actualizacion|date:"d/m/Y H:i" }}</dd><dt class="col-md-3">Usuario creador</dt><dd class="col-md-9">{{ hermano.creado_por|default:"No registrado" }}</dd><dt class="col-md-3">Último usuario que modificó</dt><dd class="col-md-9">{{ hermano.actualizado_por|default:"No registrado" }}</dd></dl></div></div></section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

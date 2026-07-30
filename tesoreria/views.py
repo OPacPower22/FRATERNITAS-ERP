@@ -5,11 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
 from miembros.models import Hermano
+from miembros.services.expediente import obtener_expediente
 from negocio.domain.cu_002_cobro_integral import ejecutar_cobro
 from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
 from negocio.services.dashboard import obtener_indicadores
 from negocio.services.egresos import obtener_saldos
+from tesoreria.services.recibo import construir_previsualizacion_recibo
 
 
 @login_required
@@ -54,10 +56,12 @@ def _obligaciones_pendientes(hermano):
 def emitir_recibo(request):
     hermanos = Hermano.objects.filter(estatus="ACTIVO").select_related("grado")
     hermano = None
+    expediente = None
     obligaciones = []
     propuesta = None
     resultado = None
     errores = []
+    previsualizacion_recibo = None
     datos_formulario = {
         "importe": "",
         "forma_pago": "EFECTIVO",
@@ -79,12 +83,12 @@ def emitir_recibo(request):
         if not hermano_id:
             errores.append("Seleccione un hermano.")
         else:
-            # Limitar el cobro a hermanos activos, igual que el selector.
             hermano = get_object_or_404(
                 Hermano.objects.select_related("grado"),
                 pk=hermano_id,
                 estatus="ACTIVO",
             )
+            expediente = obtener_expediente(hermano)
             obligaciones = _obligaciones_pendientes(hermano)
 
         importe = None
@@ -119,16 +123,25 @@ def emitir_recibo(request):
             if not propuesta.aplicaciones:
                 errores.append("El hermano no tiene obligaciones pendientes.")
 
+        if not errores and propuesta is not None and hermano is not None:
+            previsualizacion_recibo = construir_previsualizacion_recibo(
+                hermano=hermano,
+                propuesta=propuesta,
+                datos_formulario=datos_formulario,
+            )
+
     return render(
         request,
         "tesoreria/cu001/emitir_recibo.html",
         {
             "hermanos": hermanos,
             "hermano": hermano,
+            "expediente": expediente,
             "obligaciones": obligaciones,
             "propuesta": propuesta,
             "resultado": resultado,
             "errores": errores,
             "datos_formulario": datos_formulario,
+            "previsualizacion_recibo": previsualizacion_recibo,
         },
     )

@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+{% load moneda %}
+
+{% block title %}{{ recibo.folio_formateado }}{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <p class="text-muted mb-1">Recibo</p>
+                <h1 class="h3 mb-1">{{ recibo.folio_formateado }}</h1>
+                <div>{{ recibo.fecha_emision|date:"d/m/Y H:i" }} · {{ recibo.get_estado_display }}</div>
+            </div>
+            <button class="btn btn-outline-secondary" type="button" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir</button>
+        </div>
+        <dl class="row">
+            <dt class="col-sm-3">Hermano</dt><dd class="col-sm-9">{{ recibo.pago.hermano }}</dd>
+            <dt class="col-sm-3">Fecha de pago</dt><dd class="col-sm-9">{{ recibo.pago.fecha|date:"d/m/Y" }}</dd>
+            <dt class="col-sm-3">Forma de pago</dt><dd class="col-sm-9">{{ recibo.pago.forma_pago }}</dd>
+            <dt class="col-sm-3">Importe</dt><dd class="col-sm-9">{{ recibo.pago.importe|moneda }}</dd>
+        </dl>
+        <h2 class="h5 mt-4">Aplicaciones</h2>
+        <table class="table"><thead><tr><th>Concepto</th><th>Periodo</th><th class="text-end">Importe</th></tr></thead><tbody>{% for aplicacion in aplicaciones %}<tr><td>{{ aplicacion.obligacion.concepto }}</td><td>{{ aplicacion.obligacion.periodo }}</td><td class="text-end">{{ aplicacion.importe_aplicado|moneda }}</td></tr>{% empty %}<tr><td colspan="3" class="text-muted">Sin aplicaciones registradas.</td></tr>{% endfor %}</tbody></table>
+    </div>
+</div>
+{% if request.GET.imprimir %}<script>window.addEventListener("load", () => window.print());</script>{% endif %}
+{% endblock %}

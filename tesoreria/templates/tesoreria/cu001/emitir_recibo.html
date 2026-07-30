@@ -26,18 +26,46 @@
         <section class="card h-100 shadow-sm">
             <div class="card-body">
                 <h4 class="card-title">Expediente del Hermano</h4>
+                {% if expediente %}
                 <div class="text-center py-3">
+                    {% if expediente.fotografia %}
+                    <img src="{{ expediente.fotografia.url }}" alt="{{ expediente.nombre_completo }}" class="rounded-circle border" style="width: 90px; height: 90px; object-fit: cover;">
+                    {% else %}
                     <div class="rounded-circle bg-danger text-white d-inline-flex justify-content-center align-items-center fw-bold fs-3" style="width: 90px; height: 90px;">
-                        {% if hermano %}{{ hermano.nombre|first }}{{ hermano.apellido_paterno|first }}{% else %}?{% endif %}
+                        {{ expediente.nombre_completo|slice:":1" }}
                     </div>
+                    {% endif %}
                 </div>
+
+                <div class="mb-3 text-center">
+                    {% if expediente.estado_administrativo == "A PLOMO" %}
+                    <span class="badge rounded-pill bg-success">A PLOMO</span>
+                    {% elif expediente.estado_administrativo == "DESPLOMADO" %}
+                    <span class="badge rounded-pill bg-danger">DESPLOMADO</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-warning text-dark">REGULAR</span>
+                    {% endif %}
+                </div>
+
                 <table class="table table-sm mb-0">
-                    <tr><th>Nombre</th><td>{% if hermano %}{{ hermano }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>No. control</th><td>{% if hermano %}{{ hermano.numero_control }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>Grado</th><td>{% if hermano %}{{ hermano.grado }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>Estado</th><td>{% if hermano %}<span class="badge text-bg-success">{{ hermano.get_estatus_display }}</span>{% else %}—{% endif %}</td></tr>
-                    <tr><th>Obligaciones pendientes</th><td>{{ obligaciones|length }}</td></tr>
+                    <tr><th>Nombre</th><td>{{ expediente.nombre_completo }}</td></tr>
+                    <tr><th>No. control</th><td>{{ expediente.numero_control }}</td></tr>
+                    <tr><th>Grado</th><td>{{ expediente.grado }}</td></tr>
+                    <tr><th>Fecha de nacimiento</th><td>{% if expediente.fecha_nacimiento %}{{ expediente.fecha_nacimiento|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Fecha de ingreso</th><td>{% if expediente.fecha_ingreso %}{{ expediente.fecha_ingreso|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Fecha de iniciación</th><td>{% if expediente.fecha_iniciacion %}{{ expediente.fecha_iniciacion|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Fecha de aumento</th><td>{% if expediente.fecha_aumento %}{{ expediente.fecha_aumento|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Fecha de exaltación</th><td>{% if expediente.fecha_exaltacion %}{{ expediente.fecha_exaltacion|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Tipo de ingreso</th><td>{{ expediente.tipo_ingreso_display }}</td></tr>
+                    <tr><th>Estatus</th><td>{{ expediente.estatus_display }}</td></tr>
+                    <tr><th>Obligaciones pendientes</th><td>{{ expediente.numero_obligaciones_pendientes }}</td></tr>
+                    <tr><th>Adeudo total</th><td>${{ expediente.adeudo_actual|floatformat:2 }}</td></tr>
+                    <tr><th>Último pago</th><td>{% if expediente.ultimo_pago %}{{ expediente.ultimo_pago.fecha|date:"d/m/Y" }}{% else %}—{% endif %}</td></tr>
+                    <tr><th>Importe del último pago</th><td>{% if expediente.ultimo_pago %}${{ expediente.ultimo_pago.importe|floatformat:2 }}{% else %}—{% endif %}</td></tr>
                 </table>
+                {% else %}
+                <div class="text-muted">Seleccione un hermano para ver su expediente.</div>
+                {% endif %}
             </div>
         </section>
     </div>
@@ -54,7 +82,7 @@
                             <option value="">Seleccione un hermano...</option>
                             {% for h in hermanos %}
                             <option value="{{ h.pk }}" {% if hermano and h.pk == hermano.pk %}selected{% endif %}>
-                                {{ h.numero_control }} — {{ h }}
+                                {{ h.nombre }} {{ h.apellido_paterno }} {{ h.apellido_materno }}
                             </option>
                             {% endfor %}
                         </select>
@@ -113,26 +141,46 @@
     <div class="col-lg-4">
         <section class="card h-100 shadow-sm">
             <div class="card-body">
-                <h4 class="card-title">Recibo generado</h4>
-                {% if resultado and resultado.exitoso %}
-                {% with recibo=resultado.recibo %}
+                <h4 class="card-title">Vista previa del recibo</h4>
+                {% if previsualizacion_recibo %}
                 <div class="border rounded p-3 bg-light">
-                    <div class="d-flex justify-content-between"><strong>Folio</strong><span>{{ recibo.folio }}</span></div>
-                    <div class="d-flex justify-content-between"><strong>Fecha</strong><span>{{ recibo.fecha|date:"d/m/Y H:i" }}</span></div>
-                    <div class="d-flex justify-content-between"><strong>Hermano</strong><span class="text-end">{{ recibo.hermano }}</span></div>
-                    <div class="d-flex justify-content-between"><strong>Forma de pago</strong><span>{{ recibo.pago.forma_pago }}</span></div>
-                    {% if recibo.pago.referencia %}<div class="d-flex justify-content-between"><strong>Referencia</strong><span>{{ recibo.pago.referencia }}</span></div>{% endif %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="fw-bold">{{ previsualizacion_recibo.logo_texto }}</div>
+                            <div class="text-muted small">{{ previsualizacion_recibo.iniciales_logia }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">Recibo</div>
+                            <div class="small">{{ previsualizacion_recibo.folio }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2"><strong>Fecha</strong><span>{{ previsualizacion_recibo.fecha|date:"d/m/Y" }}</span></div>
+                    <div class="d-flex justify-content-between mb-2"><strong>Hermano</strong><span class="text-end">{{ previsualizacion_recibo.nombre_hermano }}</span></div>
+                    <div class="d-flex justify-content-between mb-2"><strong>Forma de pago</strong><span>{{ previsualizacion_recibo.forma_pago }}</span></div>
                     <hr>
-                    {% for aplicacion in recibo.aplicaciones %}
-                    <div class="d-flex justify-content-between small"><span>{{ aplicacion.obligacion.concepto }} · {{ aplicacion.obligacion.periodo }}</span><span>${{ aplicacion.importe_aplicado|floatformat:2 }}</span></div>
+                    {% for concepto in previsualizacion_recibo.conceptos %}
+                    <div class="d-flex justify-content-between small mb-1"><span>{{ concepto.concepto }} · {{ concepto.periodo }}</span><span>${{ concepto.importe|floatformat:2 }}</span></div>
                     {% endfor %}
-                    {% if resultado.saldo_a_favor %}<div class="d-flex justify-content-between small"><span>Saldo a favor</span><span>${{ resultado.saldo_a_favor|floatformat:2 }}</span></div>{% endif %}
+                    {% if previsualizacion_recibo.saldo_a_favor %}
+                    <div class="d-flex justify-content-between small mb-1"><span>Saldo a favor</span><span>${{ previsualizacion_recibo.saldo_a_favor|floatformat:2 }}</span></div>
+                    {% endif %}
                     <hr>
-                    <div class="d-flex justify-content-between fw-bold"><span>Total recibido</span><span>${{ recibo.total|floatformat:2 }}</span></div>
+                    <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>${{ previsualizacion_recibo.total|floatformat:2 }}</span></div>
+                    {% if previsualizacion_recibo.observaciones %}
+                    <div class="mt-3 small text-muted">{{ previsualizacion_recibo.observaciones }}</div>
+                    {% endif %}
+                    <div class="mt-3 text-center">
+                        {{ previsualizacion_recibo.qr_svg|safe }}
+                    </div>
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Imprimir PDF</button>
+                        <a class="btn btn-outline-success btn-sm" href="https://wa.me/?text={{ previsualizacion_recibo.nombre_hermano|urlencode }}%20-%20Recibo%20{{ previsualizacion_recibo.folio|urlencode }}" target="_blank" rel="noopener">WhatsApp</a>
+                        <a class="btn btn-outline-primary btn-sm" href="mailto:?subject=Recibo%20{{ previsualizacion_recibo.folio|urlencode }}&body={{ previsualizacion_recibo.nombre_hermano|urlencode }}%0A{{ previsualizacion_recibo.total|floatformat:2 }}" target="_blank" rel="noopener">Email</a>
+                        <a class="btn btn-outline-dark btn-sm" href="{{ previsualizacion_recibo.url_validacion }}" target="_blank" rel="noopener">Validar QR</a>
+                    </div>
                 </div>
-                {% endwith %}
                 {% else %}
-                <div class="border rounded p-3 text-muted">El recibo aparecerá aquí al confirmar el cobro.</div>
+                <div class="border rounded p-3 text-muted">La vista previa del recibo aparecerá aquí al calcular la aplicación.</div>
                 {% endif %}
             </div>
         </section>
