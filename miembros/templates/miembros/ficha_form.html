@@ -1,0 +1,251 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}{% if hermano %}Editar Hermano{% else %}Nuevo Hermano{% endif %}{% endblock %}
+{% block content %}
+
+<style>
+    .miembros-avatar {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #b5122b;
+        background-color: #fff;
+    }
+    .miembros-avatar.es-sombra {
+        object-fit: contain;
+        padding: .55rem;
+        filter: grayscale(1);
+        opacity: .55;
+    }
+    .miembros-group-card { border: 0; }
+    .miembros-group-header {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: 1rem 1.25rem;
+        background-color: #f5f5f5;
+        border-left: 5px solid var(--miembros-color, #b5122b);
+        border-radius: .4rem .4rem 0 0;
+    }
+    .miembros-group-header h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .miembros-field-label { font-weight: 600; font-size: .92rem; }
+    .miembros-error { color: #dc3545; font-size: .82rem; margin-top: .25rem; }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">{% if hermano %}Editar Hermano{% else %}Nuevo Hermano{% endif %}</h2>
+        <p class="text-muted mb-0">
+            {% if hermano %}{{ hermano }}{% else %}Alta de un nuevo integrante en el directorio institucional.{% endif %}
+        </p>
+    </div>
+    <a href="{% url 'miembros_directorio' %}" class="btn btn-outline-primary">← Directorio</a>
+</div>
+
+{% if guardado %}
+<div class="alert alert-success" role="alert">
+    <i class="bi bi-check-circle-fill"></i> El expediente se guardó correctamente.
+</div>
+{% endif %}
+
+{% if form.non_field_errors %}
+<div class="alert alert-danger" role="alert">
+    <ul class="mb-0">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <section class="card miembros-group-card shadow-sm mb-4" style="--miembros-color:#b5122b;">
+        <div class="miembros-group-header">
+            <i class="bi bi-person-vcard"></i>
+            <h4>Identificación</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3 text-center">
+                    <img id="miembros-preview"
+                         class="miembros-avatar mb-2 {% if not hermano.fotografia %}es-sombra{% endif %}"
+                         src="{% if hermano.fotografia %}{{ hermano.fotografia.url }}{% else %}{% static 'img/escudo.png' %}{% endif %}"
+                         alt="Fotografía del Hermano">
+                    <label for="{{ form.fotografia.id_for_label }}" class="miembros-field-label d-block">Fotografía</label>
+                    {{ form.fotografia }}
+                    {% if form.fotografia.errors %}<div class="miembros-error">{{ form.fotografia.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-md-9">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.numero_control.id_for_label }}" class="miembros-field-label">Número de control</label>
+                            {{ form.numero_control }}
+                            {% if form.numero_control.errors %}<div class="miembros-error">{{ form.numero_control.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <label for="{{ form.nombre_simbolico.id_for_label }}" class="miembros-field-label">Nombre simbólico <span class="text-muted fw-normal">(opcional)</span></label>
+                            {{ form.nombre_simbolico }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.nombre.id_for_label }}" class="miembros-field-label">Nombre(s)</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}<div class="miembros-error">{{ form.nombre.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.apellido_paterno.id_for_label }}" class="miembros-field-label">Apellido paterno</label>
+                            {{ form.apellido_paterno }}
+                            {% if form.apellido_paterno.errors %}<div class="miembros-error">{{ form.apellido_paterno.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.apellido_materno.id_for_label }}" class="miembros-field-label">Apellido materno <span class="text-muted fw-normal">(opcional)</span></label>
+                            {{ form.apellido_materno }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card miembros-group-card shadow-sm mb-4" style="--miembros-color:#198754;">
+        <div class="miembros-group-header">
+            <i class="bi bi-person-lines-fill"></i>
+            <h4>Datos Personales</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="{{ form.fecha_nacimiento.id_for_label }}" class="miembros-field-label">Fecha de nacimiento</label>
+                    {{ form.fecha_nacimiento }}
+                </div>
+                <div class="col-md-5">
+                    <label for="{{ form.lugar_nacimiento.id_for_label }}" class="miembros-field-label">Lugar de nacimiento</label>
+                    {{ form.lugar_nacimiento }}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.profesion.id_for_label }}" class="miembros-field-label">Profesión</label>
+                    {{ form.profesion }}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.ocupacion.id_for_label }}" class="miembros-field-label">Ocupación</label>
+                    {{ form.ocupacion }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card miembros-group-card shadow-sm mb-4" style="--miembros-color:#0d6efd;">
+        <div class="miembros-group-header">
+            <i class="bi bi-telephone"></i>
+            <h4>Contacto</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="{{ form.telefono.id_for_label }}" class="miembros-field-label">Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.celular.id_for_label }}" class="miembros-field-label">Celular</label>
+                    {{ form.celular }}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.correo.id_for_label }}" class="miembros-field-label">Correo electrónico</label>
+                    {{ form.correo }}
+                    {% if form.correo.errors %}<div class="miembros-error">{{ form.correo.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label for="{{ form.direccion.id_for_label }}" class="miembros-field-label">Dirección</label>
+                    {{ form.direccion }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card miembros-group-card shadow-sm mb-4" style="--miembros-color:#6f42c1;">
+        <div class="miembros-group-header">
+            <i class="bi bi-shield-check"></i>
+            <h4>Información Masónica</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="{{ form.grado.id_for_label }}" class="miembros-field-label">Grado</label>
+                    {{ form.grado }}
+                    {% if form.grado.errors %}<div class="miembros-error">{{ form.grado.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.tipo_ingreso.id_for_label }}" class="miembros-field-label">Tipo de ingreso</label>
+                    {{ form.tipo_ingreso }}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.logia_procedencia.id_for_label }}" class="miembros-field-label">Logia de procedencia <span class="text-muted fw-normal">(opcional)</span></label>
+                    {{ form.logia_procedencia }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.fecha_ingreso.id_for_label }}" class="miembros-field-label">Fecha de ingreso</label>
+                    {{ form.fecha_ingreso }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.fecha_iniciacion.id_for_label }}" class="miembros-field-label">Iniciación</label>
+                    {{ form.fecha_iniciacion }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.fecha_aumento.id_for_label }}" class="miembros-field-label">Aumento de salario</label>
+                    {{ form.fecha_aumento }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ form.fecha_exaltacion.id_for_label }}" class="miembros-field-label">Exaltación</label>
+                    {{ form.fecha_exaltacion }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card miembros-group-card shadow-sm mb-4" style="--miembros-color:#dc3545;">
+        <div class="miembros-group-header">
+            <i class="bi bi-clipboard-check"></i>
+            <h4>Estatus y Observaciones</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="{{ form.estatus.id_for_label }}" class="miembros-field-label">Estatus</label>
+                    {{ form.estatus }}
+                </div>
+                <div class="col-md-8">
+                    <label for="{{ form.observaciones.id_for_label }}" class="miembros-field-label">Observaciones</label>
+                    {{ form.observaciones }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="d-flex justify-content-end gap-2 mb-5">
+        <a href="{% url 'miembros_directorio' %}" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-save"></i> Guardar expediente
+        </button>
+    </div>
+</form>
+
+<script>
+    (function () {
+        var input = document.getElementById("{{ form.fotografia.id_for_label }}");
+        var preview = document.getElementById("miembros-preview");
+
+        if (!input || !preview) { return; }
+
+        input.addEventListener("change", function () {
+            if (!this.files || !this.files[0]) { return; }
+            var lector = new FileReader();
+            lector.onload = function (evento) {
+                preview.src = evento.target.result;
+                preview.classList.remove("es-sombra");
+            };
+            lector.readAsDataURL(this.files[0]);
+        });
+    })();
+</script>
+
+{% endblock %}

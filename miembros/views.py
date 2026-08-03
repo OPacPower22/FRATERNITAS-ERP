@@ -2,13 +2,17 @@
 Vistas del módulo de Miembros.
 
 Expone el expediente del Hermano como servicio JSON para que el
-CU-001 lo consuma sin recargar la página.
+CU-001 lo consuma sin recargar la página, y la ficha (directorio,
+alta y edición) que alimenta ese mismo directorio.
 """
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
+from miembros.forms import HermanoForm
 from miembros.models import Hermano
 from miembros.services.expediente import obtener_expediente
 
@@ -72,4 +76,87 @@ def api_directorio(request):
                 for hermano in consulta
             ]
         }
+    )
+
+
+@login_required
+def directorio(request):
+    """
+    Ficha institucional: directorio de Hermanos, con alta y edición.
+
+    GET /miembros/?q=texto&estatus=ACTIVO
+    """
+
+    consulta = Hermano.objects.select_related("grado").all()
+
+    texto = request.GET.get("q", "").strip()
+    if texto:
+        consulta = consulta.filter(
+            Q(nombre__icontains=texto)
+            | Q(apellido_paterno__icontains=texto)
+            | Q(apellido_materno__icontains=texto)
+            | Q(numero_control__icontains=texto)
+            | Q(nombre_simbolico__icontains=texto)
+        )
+
+    estatus = request.GET.get("estatus", "").strip().upper()
+    if estatus:
+        consulta = consulta.filter(estatus=estatus)
+
+    return render(
+        request,
+        "miembros/directorio.html",
+        {
+            "hermanos": consulta,
+            "texto_busqueda": texto,
+            "estatus_filtro": estatus,
+            "estatus_choices": Hermano.ESTATUS,
+        },
+    )
+
+
+@login_required
+def crear_hermano(request):
+    """Alta de un nuevo Hermano en la ficha institucional."""
+
+    if request.method == "POST":
+        form = HermanoForm(request.POST, request.FILES)
+        if form.is_valid():
+            hermano = form.save()
+            return redirect(f"{reverse('miembros_editar', args=[hermano.pk])}?guardado=1")
+    else:
+        form = HermanoForm()
+
+    return render(
+        request,
+        "miembros/ficha_form.html",
+        {
+            "form": form,
+            "hermano": None,
+        },
+    )
+
+
+@login_required
+def editar_hermano(request, pk):
+    """Edición de la ficha de un Hermano existente."""
+
+    hermano = get_object_or_404(Hermano, pk=pk)
+
+    if request.method == "POST":
+        form = HermanoForm(request.POST, request.FILES, instance=hermano)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('miembros_editar', args=[hermano.pk])}?guardado=1")
+    else:
+        form = HermanoForm(instance=hermano)
+
+    return render(
+        request,
+        "miembros/ficha_form.html",
+        {
+            "form": form,
+            "hermano": hermano,
+            "guardado": request.GET.get("guardado") == "1",
+        },
     )
