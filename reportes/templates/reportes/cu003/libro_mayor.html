@@ -1,0 +1,134 @@
+{% extends "base/base.html" %}
+{% load moneda %}
+{% block title %}CU-003 · Libro Mayor{% endblock %}
+{% block content %}
+
+<style>
+    .cu003-group-card { border: 0; }
+    .cu003-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background-color: #f5f5f5;
+        border-left: 5px solid var(--cu003-color, #b5122b);
+        border-radius: .4rem .4rem 0 0;
+    }
+    .cu003-group-header h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .cu003-balanza-row { cursor: pointer; transition: background-color .18s ease; }
+    .cu003-balanza-row td { padding-top: .6rem; padding-bottom: .6rem; }
+    .cu003-balanza-row:hover td { background-color: #f8f9fa; }
+    .cu003-balanza-row.is-selected td { background-color: #fbe9ec; }
+    .cu003-balanza-row.is-selected td:first-child { box-shadow: inset 5px 0 #b5122b; }
+    .cu003-codigo {
+        font-family: monospace;
+        font-size: .82rem;
+        color: #6c757d;
+        background: #f1f1f1;
+        border-radius: .3rem;
+        padding: .15rem .45rem;
+    }
+    .cu003-saldo-positivo { color: #198754; font-weight: 700; }
+    .cu003-saldo-negativo { color: #dc3545; font-weight: 700; }
+    .cu003-acumulado {
+        font-size: 1.05rem;
+        font-weight: 700;
+        transition: transform .18s ease;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">Libro Mayor</h2>
+        <p class="text-muted mb-0">Balanza de comprobación y detalle de movimientos por cuenta.</p>
+    </div>
+    <a href="{% url 'cu003_reportes_index' %}" class="btn btn-outline-primary">← Reportes</a>
+</div>
+
+<section class="card cu003-group-card shadow-sm mb-4" style="--cu003-color:#b5122b;">
+    <div class="cu003-group-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-list-check"></i>
+            <h4>Balanza de comprobación</h4>
+        </div>
+        <span class="badge text-bg-light border">{{ balanza|length }} cuenta{{ balanza|length|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted">
+                        <th>Cuenta</th>
+                        <th class="text-end">Debe</th>
+                        <th class="text-end">Haber</th>
+                        <th class="text-end">Saldo</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for renglon in balanza %}
+                    <tr class="cu003-balanza-row {% if cuenta_seleccionada.pk == renglon.cuenta.pk %}is-selected{% endif %}"
+                        onclick="window.location='{% url 'cu003_libro_mayor' %}?cuenta={{ renglon.cuenta.pk }}'">
+                        <td><span class="cu003-codigo">{{ renglon.cuenta.codigo }}</span> {{ renglon.cuenta.nombre }}</td>
+                        <td class="text-end">{{ renglon.debe|moneda }}</td>
+                        <td class="text-end">{{ renglon.haber|moneda }}</td>
+                        <td class="text-end {% if renglon.saldo >= 0 %}cu003-saldo-positivo{% else %}cu003-saldo-negativo{% endif %}">{{ renglon.saldo|moneda }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'cu003_libro_mayor' %}?cuenta={{ renglon.cuenta.pk }}" class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();">
+                                Ver movimientos <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No hay cuentas con movimientos.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% if cuenta_seleccionada %}
+<section class="card cu003-group-card shadow-sm">
+    <div class="cu003-group-header" style="--cu003-color:#198754;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-journal-bookmark"></i>
+            <h4><span class="cu003-codigo">{{ cuenta_seleccionada.codigo }}</span> {{ cuenta_seleccionada.nombre }}</h4>
+        </div>
+        <span class="badge text-bg-light border">{{ movimientos|length }} movimiento{{ movimientos|length|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted">
+                        <th>Fecha</th>
+                        <th>Folio</th>
+                        <th>Concepto</th>
+                        <th class="text-end">Debe</th>
+                        <th class="text-end">Haber</th>
+                        <th class="text-end">Saldo acumulado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for renglon in movimientos %}
+                    <tr>
+                        <td class="text-muted small">{{ renglon.partida.poliza.fecha|date:"d/m/Y" }}</td>
+                        <td><span class="cu003-codigo">{{ renglon.partida.poliza.folio }}</span></td>
+                        <td class="text-muted small">{{ renglon.partida.concepto }}</td>
+                        <td class="text-end">{% if renglon.partida.debe %}{{ renglon.partida.debe|moneda }}{% endif %}</td>
+                        <td class="text-end">{% if renglon.partida.haber %}{{ renglon.partida.haber|moneda }}{% endif %}</td>
+                        <td class="text-end cu003-acumulado {% if renglon.acumulado >= 0 %}cu003-saldo-positivo{% else %}cu003-saldo-negativo{% endif %}">{{ renglon.acumulado|moneda }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">Esta cuenta no tiene movimientos.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

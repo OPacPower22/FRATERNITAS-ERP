@@ -1,0 +1,92 @@
+{% extends "base/base.html" %}
+{% block title %}CU-003 · Catálogo de Cuentas{% endblock %}
+{% block content %}
+
+<style>
+    .cu003-group-card { border: 0; }
+    .cu003-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background-color: #f5f5f5;
+        border-left: 5px solid var(--cu003-color, #6c757d);
+        border-radius: .4rem .4rem 0 0;
+    }
+    .cu003-group-header h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .cu003-group-header .badge { background: var(--cu003-color, #6c757d); }
+    .cu003-cuenta-row td { transition: background-color .18s ease; padding-top: .55rem; padding-bottom: .55rem; }
+    .cu003-cuenta-row:hover td { background-color: #f8f9fa; }
+    .cu003-cuenta-row.cu003-cuenta-mayor td { background-color: #fafafa; font-weight: 700; }
+    .cu003-cuenta-row.cu003-cuenta-mayor:hover td { background-color: #f2f2f2; }
+    .cu003-codigo {
+        font-family: monospace;
+        font-size: .82rem;
+        color: #6c757d;
+        background: #f1f1f1;
+        border-radius: .3rem;
+        padding: .15rem .45rem;
+    }
+    .cu003-nombre-indent { display: inline-block; }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">Catálogo de Cuentas</h2>
+        <p class="text-muted mb-0">Estructura contable institucional, clasificada por naturaleza.</p>
+    </div>
+    <a href="{% url 'cu003_reportes_index' %}" class="btn btn-outline-primary">← Reportes</a>
+</div>
+
+{% for grupo in grupos %}
+<section class="card cu003-group-card shadow-sm mb-4" style="--cu003-color:{{ grupo.color }};">
+    <div class="cu003-group-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi {{ grupo.icono }}"></i>
+            <h4>{{ grupo.etiqueta }}</h4>
+        </div>
+        <span class="badge text-bg-light border">{{ grupo.cuentas|length }} cuenta{{ grupo.cuentas|length|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted">
+                        <th style="width: 12rem;">Código</th>
+                        <th>Cuenta</th>
+                        <th class="text-center">Naturaleza</th>
+                        <th class="text-center">Acepta movimientos</th>
+                        <th>Concepto vinculado</th>
+                        <th class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cuenta in grupo.cuentas %}
+                    <tr class="cu003-cuenta-row {% if not cuenta.acepta_movimientos %}cu003-cuenta-mayor{% endif %}">
+                        <td><span class="cu003-codigo">{{ cuenta.codigo }}</span></td>
+                        <td>
+                            <span class="cu003-nombre-indent" style="padding-left: {{ cuenta.nivel|add:'-1' }}.4rem;">
+                                {{ cuenta.nombre }}
+                            </span>
+                        </td>
+                        <td class="text-center small text-muted">{{ cuenta.naturaleza|title }}</td>
+                        <td class="text-center">
+                            {% if cuenta.acepta_movimientos %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="text-muted small">{{ cuenta.concepto_contable|default:"—" }}</td>
+                        <td class="text-center">
+                            {% if cuenta.activa %}<span class="badge text-bg-success">Activa</span>{% else %}<span class="badge text-bg-secondary">Inactiva</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% empty %}
+<div class="alert alert-secondary">No hay cuentas registradas.</div>
+{% endfor %}
+
+{% endblock %}

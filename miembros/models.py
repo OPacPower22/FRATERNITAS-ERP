@@ -1,6 +1,17 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from catalogos.models import Grado
+
+TAMANO_MAXIMO_FOTOGRAFIA = 5 * 1024 * 1024  # 5 MB
+
+
+def validar_tamano_fotografia(archivo):
+    if archivo.size > TAMANO_MAXIMO_FOTOGRAFIA:
+        raise ValidationError(
+            "La fotografía no debe superar los 5 MB."
+        )
+
 
 class Hermano(models.Model):
 
@@ -40,7 +51,8 @@ class Hermano(models.Model):
     fotografia = models.ImageField(
         upload_to="hermanos/",
         blank=True,
-        null=True
+        null=True,
+        validators=[validar_tamano_fotografia],
     )
 
     # ==========================

@@ -19,6 +19,8 @@ class CobroResultado:
 
     movimientos: list = field(default_factory=list)
 
+    poliza: object | None = None
+
     recibo: object | None = None
 
     saldo_a_favor: float = 0.0

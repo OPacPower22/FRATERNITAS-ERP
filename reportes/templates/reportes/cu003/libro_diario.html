@@ -1,0 +1,115 @@
+{% extends "base/base.html" %}
+{% load moneda %}
+{% block title %}CU-003 · Libro Diario{% endblock %}
+{% block content %}
+
+<style>
+    .cu003-poliza-card { border: 0; overflow: hidden; }
+    .cu003-poliza-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background-color: #f5f5f5;
+        border-left: 5px solid var(--cu003-color, #6c757d);
+        cursor: pointer;
+        transition: background-color .18s ease;
+    }
+    .cu003-poliza-header:hover { background-color: #eef1f0; }
+    .cu003-poliza-header .badge { background: var(--cu003-color, #6c757d); }
+    .cu003-poliza-folio { font-family: monospace; font-weight: 700; }
+    .cu003-poliza-total { font-size: 1.15rem; font-weight: 700; color: var(--cu003-color, #198754); min-width: 8rem; text-align: right; }
+    .cu003-poliza-chevron { transition: transform .18s ease; color: #6c757d; }
+    .cu003-poliza-header[aria-expanded="true"] .cu003-poliza-chevron { transform: rotate(180deg); }
+    .cu003-partida-row td { padding-top: .5rem; padding-bottom: .5rem; }
+    .cu003-partida-row.cu003-partida-debe td:nth-child(3) { font-weight: 600; }
+    .cu003-partida-row.cu003-partida-haber td:nth-child(4) { font-weight: 600; }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">Libro Diario</h2>
+        <p class="text-muted mb-0">Pólizas contables en orden cronológico.</p>
+    </div>
+    <a href="{% url 'cu003_reportes_index' %}" class="btn btn-outline-primary">← Reportes</a>
+</div>
+
+{% for poliza in polizas %}
+<section class="card cu003-poliza-card shadow-sm mb-3"
+         style="--cu003-color:{% if poliza.tipo == 'INGRESO' %}#198754{% elif poliza.tipo == 'EGRESO' %}#dc3545{% else %}#6c757d{% endif %};">
+
+    <div class="cu003-poliza-header" data-bs-toggle="collapse" data-bs-target="#partidas-{{ poliza.pk }}"
+         role="button" aria-expanded="false">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <i class="bi bi-chevron-down cu003-poliza-chevron"></i>
+            <span class="cu003-poliza-folio">{{ poliza.folio }}</span>
+            <span class="badge">{{ poliza.get_tipo_display }}</span>
+            <span class="text-muted small">{{ poliza.fecha|date:"d/m/Y" }}</span>
+            <span>{{ poliza.concepto }}</span>
+            {% if poliza.estado == "CANCELADA" %}<span class="badge text-bg-danger">Cancelada</span>{% endif %}
+        </div>
+        <div class="cu003-poliza-total">{{ poliza.total_debe|moneda }}</div>
+    </div>
+
+    <div class="collapse" id="partidas-{{ poliza.pk }}">
+        <div class="card-body pt-3">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr class="small text-muted">
+                            <th>Cuenta</th>
+                            <th>Concepto</th>
+                            <th class="text-end">Debe</th>
+                            <th class="text-end">Haber</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partida in poliza.partidas.all %}
+                        <tr class="cu003-partida-row {% if partida.debe %}cu003-partida-debe{% else %}cu003-partida-haber{% endif %}">
+                            <td><span class="cu003-codigo">{{ partida.cuenta.codigo }}</span> {{ partida.cuenta.nombre }}</td>
+                            <td class="text-muted small">{{ partida.concepto }}</td>
+                            <td class="text-end">{% if partida.debe %}{{ partida.debe|moneda }}{% endif %}</td>
+                            <td class="text-end">{% if partida.haber %}{{ partida.haber|moneda }}{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-top">
+                            <th colspan="2" class="text-end">Total</th>
+                            <th class="text-end">{{ poliza.total_debe|moneda }}</th>
+                            <th class="text-end">{{ poliza.total_debe|moneda }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% empty %}
+<div class="alert alert-secondary">No hay pólizas registradas.</div>
+{% endfor %}
+
+<style>
+    .cu003-codigo {
+        font-family: monospace;
+        font-size: .82rem;
+        color: #6c757d;
+        background: #f1f1f1;
+        border-radius: .3rem;
+        padding: .15rem .45rem;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.cu003-poliza-header').forEach(function (header) {
+        var objetivo = document.querySelector(header.dataset.bsTarget);
+        if (!objetivo) { return; }
+        objetivo.addEventListener('show.bs.collapse', function () { header.setAttribute('aria-expanded', 'true'); });
+        objetivo.addEventListener('hide.bs.collapse', function () { header.setAttribute('aria-expanded', 'false'); });
+    });
+</script>
+
+{% endblock %}

@@ -109,9 +109,9 @@ class ImportadorHistorico:
 
                 obligaciones = obtener_obligaciones_pendientes(hermano)
                 if not obligaciones:
-                    # Sin aplicaciones, el importe completo permanece como saldo a favor.
-                    emitir_recibo(pago, self.usuario)
-                    return None
+                    raise ErrorImportacionHistorica(
+                        "El hermano no tiene obligaciones pendientes."
+                    )
 
                 propuesta = calcular_propuesta(obligaciones, importe)
 

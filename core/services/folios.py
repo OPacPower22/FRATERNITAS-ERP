@@ -23,6 +23,9 @@ TIPOS_VALIDOS = {
     "OBL": "OBL",
     "MOV": "MOV",
     "AUD": "AUD",
+    "PD": "PD",
+    "PI": "PI",
+    "PE": "PE",
 }
 
 
