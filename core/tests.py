@@ -9,7 +9,7 @@ class DashboardRoutingTests(TestCase):
 
         self.assertRedirects(response, "/login/?next=/")
 
-    def test_raiz_redirige_a_tesoreria_autenticado(self):
+    def test_raiz_muestra_dashboard_con_indicadores_autenticado(self):
         user = get_user_model().objects.create_user(
             username="usuario",
             password="contraseña-segura",
@@ -18,4 +18,6 @@ class DashboardRoutingTests(TestCase):
 
         response = self.client.get(reverse("dashboard"))
 
-        self.assertRedirects(response, "/tesoreria/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "core/dashboard.html")
+        self.assertContains(response, "Saldo en Caja")
