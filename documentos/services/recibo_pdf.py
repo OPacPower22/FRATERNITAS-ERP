@@ -341,6 +341,15 @@ def generar_recibo_pdf(datos, url_verificacion):
                 estilos["titulo"],
             ),
         )
+    elif datos.get("estado") == "BORRADOR":
+        elementos.insert(
+            1,
+            Paragraph(
+                "<b><font color='#8B0000'>VISTA PREVIA — "
+                "PENDIENTE DE CONFIRMAR</font></b>",
+                estilos["titulo"],
+            ),
+        )
 
     documento.build(elementos)
 

@@ -10,6 +10,11 @@ urlpatterns = [
         name="documentos_recibo_pdf",
     ),
     path(
+        "recibo/vista-previa/pdf/",
+        views.recibo_pdf_vista_previa,
+        name="documentos_recibo_pdf_vista_previa",
+    ),
+    path(
         "recibo/<int:pk>/enviar/",
         views.enviar_recibo,
         name="documentos_recibo_enviar",

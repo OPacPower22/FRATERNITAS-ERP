@@ -5,11 +5,15 @@ Responsables de la descarga del recibo en PDF, del envío por
 correo y de la verificación pública mediante código QR.
 """
 
+from decimal import Decimal, InvalidOperation
+
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from core.services.folios import obtener_siguiente_folio
 from documentos.models import Recibo
 from documentos.services import qr as servicio_qr
 from documentos.services.notificaciones import (
@@ -20,7 +24,10 @@ from documentos.services.recibo_pdf import (
     generar_recibo_pdf,
     nombre_archivo,
 )
-from negocio.models import AplicacionPago
+from miembros.models import Hermano
+from negocio.models import AplicacionPago, Pago
+from negocio.services.aplicacion import calcular_propuesta
+from negocio.services.obligaciones import obtener_obligaciones_pendientes
 
 
 def _armar_datos(recibo):
@@ -89,6 +96,62 @@ def recibo_pdf(request, pk):
 
     respuesta["Content-Disposition"] = (
         f'{disposicion}; filename="{nombre_archivo(datos)}"'
+    )
+
+    return respuesta
+
+
+@login_required
+@require_POST
+def recibo_pdf_vista_previa(request):
+    """
+    Vista previa en PDF del recibo antes de confirmar el cobro.
+
+    No persiste nada: el folio es provisional (no consume el
+    consecutivo) y no existe un Recibo real todavía.
+
+    POST /documentos/recibo/vista-previa/pdf/
+    """
+
+    hermano = get_object_or_404(
+        Hermano.objects.select_related("grado"),
+        pk=request.POST.get("hermano"),
+        estatus="ACTIVO",
+    )
+
+    try:
+        importe = Decimal(request.POST.get("importe", ""))
+    except InvalidOperation:
+        return HttpResponseBadRequest("Importe inválido.")
+
+    obligaciones = obtener_obligaciones_pendientes(hermano)
+    propuesta = calcular_propuesta(obligaciones, importe)
+
+    datos = {
+        "folio": f"{obtener_siguiente_folio('REC', guardar=False)} (provisional)",
+        "fecha": timezone.now(),
+        "hermano": hermano,
+        "pago": Pago(
+            forma_pago=request.POST.get("forma_pago", "EFECTIVO"),
+            referencia=request.POST.get("referencia", ""),
+        ),
+        "aplicaciones": propuesta.aplicaciones,
+        "total": importe,
+        "estado": "BORRADOR",
+    }
+
+    contenido = generar_recibo_pdf(
+        datos,
+        "Vista previa — no válida para verificación. "
+        "El código oficial se genera al confirmar el cobro.",
+    )
+
+    respuesta = HttpResponse(
+        contenido,
+        content_type="application/pdf",
+    )
+    respuesta["Content-Disposition"] = (
+        f'inline; filename="vista-previa-{hermano.numero_control}.pdf"'
     )
 
     return respuesta

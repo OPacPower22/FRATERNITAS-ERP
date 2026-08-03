@@ -28,6 +28,16 @@
     .cu001-vacio { color: #6c757d; font-size: .9rem; }
     #cu001-cargando { display: none; }
     #cu001-cargando.activo { display: block; }
+    .cu001-card {
+        border: none;
+        border-radius: 16px;
+        border-top: 4px solid var(--cu001-color, var(--vino));
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+    }
+    .cu001-card .card-title {
+        font-weight: 700;
+        color: #222;
+    }
 </style>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
@@ -53,7 +63,7 @@
 
     <!-- ============ COLUMNA IZQUIERDA · EXPEDIENTE ============ -->
     <div class="col-lg-4">
-        <section class="card h-100 shadow-sm">
+        <section class="card cu001-card h-100 shadow-sm" style="--cu001-color:#b5122b;">
             <div class="card-body">
 
                 <h4 class="card-title">Expediente del Hermano</h4>
@@ -137,10 +147,10 @@
 
     <!-- ============ COLUMNA CENTRAL · APLICACIÓN ============ -->
     <div class="col-lg-4">
-        <section class="card h-100 shadow-sm">
+        <section class="card cu001-card h-100 shadow-sm" style="--cu001-color:#198754;">
             <div class="card-body">
                 <h4 class="card-title">Aplicación del Pago</h4>
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="hermano" class="form-label">Hermano</label>
@@ -169,6 +179,45 @@
                             <option value="CHEQUE" {% if datos_formulario.forma_pago == "CHEQUE" %}selected{% endif %}>Cheque</option>
                             <option value="TARJETA" {% if datos_formulario.forma_pago == "TARJETA" %}selected{% endif %}>Tarjeta</option>
                         </select>
+                    </div>
+                    <div class="mb-3" id="cu001-comprobante" style="display:none;">
+                        <div class="border rounded p-3" style="border-color:#b5122b !important; background-color:#fdf5f6;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-shield-check text-danger"></i>
+                                <strong>Comprobante bancario de la transferencia</strong>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                Requerido para confirmar el cobro. El monto capturado aquí debe coincidir
+                                exactamente con el importe recibido.
+                            </p>
+                            <div class="mb-2">
+                                <label for="comprobante_archivo" class="form-label small">Adjuntar comprobante (PDF o imagen)</label>
+                                <input id="comprobante_archivo" name="comprobante_archivo" type="file" class="form-control" accept=".pdf,image/*">
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label for="comprobante_folio" class="form-label small">Folio / referencia bancaria</label>
+                                    <input id="comprobante_folio" name="comprobante_folio" type="text" class="form-control" value="{{ datos_formulario.comprobante_folio }}">
+                                </div>
+                                <div class="col-6">
+                                    <label for="comprobante_monto" class="form-label small">Monto en el comprobante</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input id="comprobante_monto" name="comprobante_monto" type="number" min="0.01" step="0.01" class="form-control" value="{{ datos_formulario.comprobante_monto }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="comprobante_emisor" class="form-label small">Emisor según el comprobante</label>
+                                <input id="comprobante_emisor" name="comprobante_emisor" type="text" class="form-control" value="{{ datos_formulario.comprobante_emisor }}">
+                            </div>
+                            <div class="form-check">
+                                <input id="comprobante_verificado" name="comprobante_verificado" type="checkbox" class="form-check-input">
+                                <label for="comprobante_verificado" class="form-check-label small">
+                                    Verifiqué que el emisor y el monto del comprobante son correctos.
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="referencia" class="form-label">Referencia <span class="text-muted">(opcional)</span></label>
@@ -207,9 +256,13 @@
 
     <!-- ============ COLUMNA DERECHA · RECIBO ============ -->
     <div class="col-lg-4">
-        <section class="card h-100 shadow-sm">
+        <section class="card cu001-card h-100 shadow-sm" style="--cu001-color:#0d6efd;">
             <div class="card-body">
-                <h4 class="card-title">Recibo generado</h4>
+                <h4 class="card-title">
+                    {% if resultado and resultado.exitoso %}Recibo generado
+                    {% elif vista_previa %}Vista previa del recibo
+                    {% else %}Recibo generado{% endif %}
+                </h4>
                 {% if resultado and resultado.exitoso %}
                 {% with recibo=resultado.recibo %}
                 <div class="border rounded p-3 bg-light">
@@ -256,6 +309,52 @@
                     <div id="cu001-envio" class="small text-muted"></div>
                 </div>
                 {% endwith %}
+                {% elif vista_previa %}
+                <div class="border rounded p-3 bg-light">
+                    <div class="alert alert-warning py-2 px-3 mb-3 small">
+                        <i class="bi bi-eye"></i> Vista previa — aún no se ha confirmado el cobro.
+                    </div>
+                    <div class="d-flex justify-content-between"><strong>Folio (provisional)</strong><span>{{ vista_previa.folio }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Fecha</strong><span>{{ vista_previa.fecha|date:"d/m/Y H:i" }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Hermano</strong><span class="text-end">{{ hermano }}</span></div>
+                    <div class="d-flex justify-content-between"><strong>Forma de pago</strong><span>{{ datos_formulario.forma_pago }}</span></div>
+                    {% if datos_formulario.referencia %}<div class="d-flex justify-content-between"><strong>Referencia</strong><span>{{ datos_formulario.referencia }}</span></div>{% endif %}
+                    <hr>
+                    {% for item in propuesta.aplicaciones %}
+                    <div class="d-flex justify-content-between small"><span>{{ item.obligacion.concepto }} · {{ item.periodo }}</span><span>${{ item.importe_aplicado|floatformat:2 }}</span></div>
+                    {% endfor %}
+                    {% if propuesta.saldo_a_favor %}<div class="d-flex justify-content-between small"><span>Saldo a favor</span><span>${{ propuesta.saldo_a_favor|floatformat:2 }}</span></div>{% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold"><span>Total recibido</span><span>${{ datos_formulario.importe }}</span></div>
+
+                    {% if vista_previa.qr %}
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <img src="{{ vista_previa.qr }}" alt="Código QR de verificación (vista previa)" style="width: 120px; height: 120px;">
+                        <div class="text-muted" style="font-size: .72rem;">
+                            Se generará el código oficial al confirmar el cobro.
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <form method="post" action="{% url 'documentos_recibo_pdf_vista_previa' %}" target="_blank">
+                        {% csrf_token %}
+                        <input type="hidden" name="hermano" value="{{ hermano.pk }}">
+                        <input type="hidden" name="importe" value="{{ datos_formulario.importe }}">
+                        <input type="hidden" name="forma_pago" value="{{ datos_formulario.forma_pago }}">
+                        <input type="hidden" name="referencia" value="{{ datos_formulario.referencia }}">
+                        <button type="submit" class="btn btn-outline-dark w-100">
+                            <i class="bi bi-file-earmark-pdf"></i> Vista previa / Imprimir PDF
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-success" disabled title="Disponible al confirmar el cobro">
+                        <i class="bi bi-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" disabled title="Disponible al confirmar el cobro">
+                        <i class="bi bi-envelope"></i> Enviar por correo
+                    </button>
+                </div>
                 {% else %}
                 <div class="border rounded p-3 text-muted">El recibo aparecerá aquí al confirmar el cobro.</div>
                 {% endif %}
@@ -405,6 +504,19 @@
                 .then(function (d) { aviso.textContent = d.mensaje; })
                 .catch(function () { aviso.textContent = "No fue posible enviar el recibo."; });
         });
+    }
+
+    var formaPago = document.getElementById("forma_pago");
+    var bloqueComprobante = document.getElementById("cu001-comprobante");
+
+    function actualizarComprobante() {
+        bloqueComprobante.style.display =
+            formaPago.value === "TRANSFERENCIA" ? "block" : "none";
+    }
+
+    if (formaPago && bloqueComprobante) {
+        formaPago.addEventListener("change", actualizarComprobante);
+        actualizarComprobante();
     }
 
 })();

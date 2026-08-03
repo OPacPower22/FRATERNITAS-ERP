@@ -3,7 +3,11 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 
+from core.services.folios import obtener_siguiente_folio
+from documentos.models import ComprobanteTransferencia
+from documentos.services.comprobantes import validar_comprobante_transferencia
 from documentos.services.qr import (
     construir_url_verificacion,
     generar_qr_base64,
@@ -68,6 +72,9 @@ def emitir_recibo(request):
         "forma_pago": "EFECTIVO",
         "referencia": "",
         "observaciones": "",
+        "comprobante_folio": "",
+        "comprobante_emisor": "",
+        "comprobante_monto": "",
     }
 
     if request.method == "POST":
@@ -77,6 +84,9 @@ def emitir_recibo(request):
                 "forma_pago": request.POST.get("forma_pago", "EFECTIVO").strip(),
                 "referencia": request.POST.get("referencia", "").strip(),
                 "observaciones": request.POST.get("observaciones", "").strip(),
+                "comprobante_folio": request.POST.get("comprobante_folio", "").strip(),
+                "comprobante_emisor": request.POST.get("comprobante_emisor", "").strip(),
+                "comprobante_monto": request.POST.get("comprobante_monto", "").strip(),
             }
         )
         hermano_id = request.POST.get("hermano", "").strip()
@@ -104,7 +114,35 @@ def emitir_recibo(request):
                 if importe <= Decimal("0.00"):
                     errores.append("El importe recibido debe ser mayor que cero.")
 
+        comprobante_archivo = request.FILES.get("comprobante_archivo")
+        comprobante_datos = None
+
         accion = request.POST.get("accion")
+
+        if (
+            not errores
+            and accion == "confirmar"
+            and datos_formulario["forma_pago"] == "TRANSFERENCIA"
+        ):
+            errores_comprobante, folio_bancario, emisor, monto_comprobante = (
+                validar_comprobante_transferencia(
+                    archivo=comprobante_archivo,
+                    folio_bancario=datos_formulario["comprobante_folio"],
+                    emisor=datos_formulario["comprobante_emisor"],
+                    monto=datos_formulario["comprobante_monto"],
+                    verificado=request.POST.get("comprobante_verificado") == "on",
+                    importe_pago=importe,
+                )
+            )
+            errores.extend(errores_comprobante)
+            if not errores_comprobante:
+                comprobante_datos = {
+                    "archivo": comprobante_archivo,
+                    "folio_bancario": folio_bancario,
+                    "emisor": emisor,
+                    "monto": monto_comprobante,
+                }
+
         if not errores and accion == "confirmar":
             resultado = ejecutar_cobro(
                 hermano=hermano,
@@ -119,6 +157,12 @@ def emitir_recibo(request):
             if resultado.exitoso:
                 propuesta = resultado.propuesta
                 obligaciones = _obligaciones_pendientes(hermano)
+                if comprobante_datos:
+                    ComprobanteTransferencia.objects.create(
+                        pago=resultado.pago,
+                        verificado_por=request.user,
+                        **comprobante_datos,
+                    )
         elif not errores:
             propuesta = calcular_propuesta(obligaciones, importe)
             if not propuesta.aplicaciones:
@@ -139,6 +183,17 @@ def emitir_recibo(request):
         )
         recibo_qr = generar_qr_base64(recibo_url_verificacion)
 
+    vista_previa = None
+    if propuesta and propuesta.aplicaciones and not (resultado and resultado.exitoso):
+        vista_previa = {
+            "folio": obtener_siguiente_folio("REC", guardar=False),
+            "fecha": timezone.now(),
+            "qr": generar_qr_base64(
+                "Vista previa — folio provisional. El código de "
+                "verificación oficial se genera al confirmar el cobro."
+            ),
+        }
+
     return render(
         request,
         "tesoreria/cu001/emitir_recibo.html",
@@ -151,6 +206,7 @@ def emitir_recibo(request):
             "recibo_url_verificacion": recibo_url_verificacion,
             "obligaciones": obligaciones,
             "propuesta": propuesta,
+            "vista_previa": vista_previa,
             "resultado": resultado,
             "errores": errores,
             "datos_formulario": datos_formulario,
