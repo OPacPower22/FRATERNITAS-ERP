@@ -35,3 +35,9 @@ backups/
 
 # Variables de entorno locales
 .env
+db.sqlite3
+*.sqlite3
+.env
+.venv/
+__pycache__/
+*.pyc
