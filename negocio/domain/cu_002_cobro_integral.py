@@ -27,6 +27,10 @@ from negocio.services.contabilidad import (
     generar_movimientos,
 )
 
+from contabilidad.services.generacion import (
+    generar_poliza_desde_pago,
+)
+
 
 def ejecutar_cobro(
     *,
@@ -75,12 +79,15 @@ def ejecutar_cobro(
 
     movimientos = generar_movimientos(pago)
 
+    poliza = generar_poliza_desde_pago(pago)
+
     recibo = emitir_recibo(
         pago,
         usuario,
     )
 
     resultado.movimientos = movimientos
+    resultado.poliza = poliza
     resultado.pago = pago
     resultado.propuesta = propuesta
     resultado.recibo = recibo
