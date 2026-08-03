@@ -1,6 +1,34 @@
 {% extends "base/base.html" %}
+{% load static %}
 {% block title %}CU-001 · Emitir Recibo{% endblock %}
 {% block content %}
+
+<style>
+    .cu001-avatar {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #8B0000;
+        background-color: #fff;
+    }
+    .cu001-avatar.es-sombra {
+        object-fit: contain;
+        padding: .55rem;
+        filter: grayscale(1);
+        opacity: .55;
+    }
+    .cu001-dato th {
+        width: 45%;
+        font-weight: 600;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+    .cu001-scroll { max-height: 260px; overflow-y: auto; }
+    .cu001-vacio { color: #6c757d; font-size: .9rem; }
+    #cu001-cargando { display: none; }
+    #cu001-cargando.activo { display: block; }
+</style>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h2 class="mb-0">CU-001 · Emitir Recibo</h2>
@@ -22,26 +50,92 @@
 {% endif %}
 
 <div class="row g-4">
+
+    <!-- ============ COLUMNA IZQUIERDA · EXPEDIENTE ============ -->
     <div class="col-lg-4">
         <section class="card h-100 shadow-sm">
             <div class="card-body">
+
                 <h4 class="card-title">Expediente del Hermano</h4>
+
+                <div id="cu001-cargando" class="text-center py-2">
+                    <div class="spinner-border spinner-border-sm text-danger"></div>
+                    <small class="text-muted ms-2">Consultando expediente...</small>
+                </div>
+
                 <div class="text-center py-3">
-                    <div class="rounded-circle bg-danger text-white d-inline-flex justify-content-center align-items-center fw-bold fs-3" style="width: 90px; height: 90px;">
-                        {% if hermano %}{{ hermano.nombre|first }}{{ hermano.apellido_paterno|first }}{% else %}?{% endif %}
+                    <img id="cu001-avatar"
+                         class="cu001-avatar {% if not expediente.avatar.es_fotografia %}es-sombra{% endif %}"
+                         src="{% if expediente %}{{ expediente.avatar.url }}{% else %}{% static 'img/escudo.png' %}{% endif %}"
+                         alt="Fotografía del Hermano">
+                    <div id="cu001-nombre" class="fw-bold mt-2">
+                        {% if expediente %}{{ expediente.biografia.nombre_completo }}{% else %}—{% endif %}
+                    </div>
+                    <div id="cu001-simbolico" class="text-muted small">
+                        {% if expediente %}{{ expediente.biografia.nombre_simbolico }}{% endif %}
                     </div>
                 </div>
-                <table class="table table-sm mb-0">
-                    <tr><th>Nombre</th><td>{% if hermano %}{{ hermano }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>No. control</th><td>{% if hermano %}{{ hermano.numero_control }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>Grado</th><td>{% if hermano %}{{ hermano.grado }}{% else %}—{% endif %}</td></tr>
-                    <tr><th>Estado</th><td>{% if hermano %}<span class="badge text-bg-success">{{ hermano.get_estatus_display }}</span>{% else %}—{% endif %}</td></tr>
-                    <tr><th>Obligaciones pendientes</th><td>{{ obligaciones|length }}</td></tr>
-                </table>
+
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bio" type="button">Datos</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pend" type="button">Pendientes <span id="cu001-badge-pend" class="badge text-bg-danger">0</span></button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cub" type="button">Cubiertas <span id="cu001-badge-cub" class="badge text-bg-success">0</span></button></li>
+                </ul>
+
+                <div class="tab-content pt-3">
+
+                    <div class="tab-pane fade show active" id="tab-bio">
+                        <table class="table table-sm cu001-dato mb-0">
+                            <tr><th>No. control</th><td id="bio-numero_control">—</td></tr>
+                            <tr><th>Grado</th><td id="bio-grado">—</td></tr>
+                            <tr><th>Estatus</th><td id="bio-estatus">—</td></tr>
+                            <tr><th>Tipo de ingreso</th><td id="bio-tipo_ingreso">—</td></tr>
+                            <tr><th>Fecha de nacimiento</th><td id="bio-fecha_nacimiento">—</td></tr>
+                            <tr><th>Lugar de nacimiento</th><td id="bio-lugar_nacimiento">—</td></tr>
+                            <tr><th>Profesión</th><td id="bio-profesion">—</td></tr>
+                            <tr><th>Iniciación</th><td id="bio-fecha_iniciacion">—</td></tr>
+                            <tr><th>Aumento</th><td id="bio-fecha_aumento">—</td></tr>
+                            <tr><th>Exaltación</th><td id="bio-fecha_exaltacion">—</td></tr>
+                            <tr><th>Logia de procedencia</th><td id="bio-logia_procedencia">—</td></tr>
+                            <tr><th>Celular</th><td id="bio-celular">—</td></tr>
+                            <tr><th>Correo</th><td id="bio-correo">—</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-pend">
+                        <div class="cu001-scroll">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead><tr><th>Concepto / periodo</th><th class="text-end">Saldo</th></tr></thead>
+                                <tbody id="cu001-pendientes">
+                                    <tr><td colspan="2" class="cu001-vacio">Seleccione un Hermano.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2 fw-bold">
+                            <span>Total por cubrir</span><span id="cu001-total-pendiente">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-cub">
+                        <div class="cu001-scroll">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead><tr><th>Concepto / periodo</th><th class="text-end">Pagado</th></tr></thead>
+                                <tbody id="cu001-cubiertas">
+                                    <tr><td colspan="2" class="cu001-vacio">Seleccione un Hermano.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2 fw-bold">
+                            <span>Total cubierto</span><span id="cu001-total-cubierto">$0.00</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </section>
     </div>
 
+    <!-- ============ COLUMNA CENTRAL · APLICACIÓN ============ -->
     <div class="col-lg-4">
         <section class="card h-100 shadow-sm">
             <div class="card-body">
@@ -50,7 +144,8 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="hermano" class="form-label">Hermano</label>
-                        <select id="hermano" name="hermano" class="form-select" required>
+                        <input id="cu001-filtro" type="search" class="form-control mb-2" placeholder="Buscar por nombre o número de control...">
+                        <select id="hermano" name="hermano" class="form-select" size="8" required>
                             <option value="">Seleccione un hermano...</option>
                             {% for h in hermanos %}
                             <option value="{{ h.pk }}" {% if hermano and h.pk == hermano.pk %}selected{% endif %}>
@@ -110,6 +205,7 @@
         </section>
     </div>
 
+    <!-- ============ COLUMNA DERECHA · RECIBO ============ -->
     <div class="col-lg-4">
         <section class="card h-100 shadow-sm">
             <div class="card-body">
@@ -129,6 +225,35 @@
                     {% if resultado.saldo_a_favor %}<div class="d-flex justify-content-between small"><span>Saldo a favor</span><span>${{ resultado.saldo_a_favor|floatformat:2 }}</span></div>{% endif %}
                     <hr>
                     <div class="d-flex justify-content-between fw-bold"><span>Total recibido</span><span>${{ recibo.total|floatformat:2 }}</span></div>
+
+                    {% if recibo_qr %}
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <img src="{{ recibo_qr }}" alt="Código QR de verificación" style="width: 120px; height: 120px;">
+                        <div class="text-muted" style="font-size: .72rem; word-break: break-all;">
+                            {{ recibo_url_verificacion }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a class="btn btn-outline-dark" target="_blank"
+                       href="{% url 'documentos_recibo_pdf' recibo_id %}">
+                        <i class="bi bi-file-earmark-pdf"></i> Vista previa / Imprimir PDF
+                    </a>
+                    <a class="btn btn-outline-secondary"
+                       href="{% url 'documentos_recibo_pdf' recibo_id %}?descargar=1">
+                        <i class="bi bi-download"></i> Descargar PDF
+                    </a>
+                    <button type="button" class="btn btn-outline-success" id="btn-whatsapp"
+                            data-url="{% url 'documentos_recibo_whatsapp' recibo_id %}">
+                        <i class="bi bi-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btn-correo"
+                            data-url="{% url 'documentos_recibo_enviar' recibo_id %}">
+                        <i class="bi bi-envelope"></i> Enviar por correo
+                    </button>
+                    <div id="cu001-envio" class="small text-muted"></div>
                 </div>
                 {% endwith %}
                 {% else %}
@@ -138,5 +263,151 @@
         </section>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+
+    const selector = document.getElementById("hermano");
+    const filtro   = document.getElementById("cu001-filtro");
+    const cargando = document.getElementById("cu001-cargando");
+    const avatar   = document.getElementById("cu001-avatar");
+    const escudo   = "{% static 'img/escudo.png' %}";
+
+    const CAMPOS_BIO = [
+        "numero_control", "grado", "estatus", "tipo_ingreso",
+        "fecha_nacimiento", "lugar_nacimiento", "profesion",
+        "fecha_iniciacion", "fecha_aumento", "fecha_exaltacion",
+        "logia_procedencia", "celular", "correo"
+    ];
+
+    function moneda(valor) {
+        return "$" + Number(valor).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function vaciar(id, mensaje) {
+        document.getElementById(id).innerHTML =
+            '<tr><td colspan="2" class="cu001-vacio">' + mensaje + "</td></tr>";
+    }
+
+    function limpiar() {
+        avatar.src = escudo;
+        avatar.classList.add("es-sombra");
+        document.getElementById("cu001-nombre").textContent = "—";
+        document.getElementById("cu001-simbolico").textContent = "";
+        CAMPOS_BIO.forEach(function (campo) {
+            document.getElementById("bio-" + campo).textContent = "—";
+        });
+        vaciar("cu001-pendientes", "Seleccione un Hermano.");
+        vaciar("cu001-cubiertas", "Seleccione un Hermano.");
+        document.getElementById("cu001-total-pendiente").textContent = "$0.00";
+        document.getElementById("cu001-total-cubierto").textContent = "$0.00";
+        document.getElementById("cu001-badge-pend").textContent = "0";
+        document.getElementById("cu001-badge-cub").textContent = "0";
+    }
+
+    function pintarObligaciones(id, lista, campo, vacio) {
+        if (!lista.length) { vaciar(id, vacio); return; }
+        document.getElementById(id).innerHTML = lista.map(function (o) {
+            return "<tr><td>" + o.concepto +
+                '<br><small class="text-muted">' + o.periodo +
+                " · vence " + (o.vencimiento || "—") +
+                '</small></td><td class="text-end">' +
+                moneda(o[campo]) + "</td></tr>";
+        }).join("");
+    }
+
+    function pintar(datos) {
+        avatar.src = datos.avatar.url;
+        avatar.classList.toggle("es-sombra", !datos.avatar.es_fotografia);
+
+        document.getElementById("cu001-nombre").textContent =
+            datos.biografia.nombre_completo;
+        document.getElementById("cu001-simbolico").textContent =
+            datos.biografia.nombre_simbolico;
+
+        CAMPOS_BIO.forEach(function (campo) {
+            document.getElementById("bio-" + campo).textContent =
+                datos.biografia[campo] || "—";
+        });
+
+        pintarObligaciones("cu001-pendientes",
+            datos.obligaciones.pendientes, "saldo_pendiente",
+            "Sin obligaciones pendientes.");
+
+        pintarObligaciones("cu001-cubiertas",
+            datos.obligaciones.cubiertas, "importe",
+            "Sin obligaciones cubiertas.");
+
+        document.getElementById("cu001-total-pendiente").textContent =
+            moneda(datos.obligaciones.total_pendiente);
+        document.getElementById("cu001-total-cubierto").textContent =
+            moneda(datos.obligaciones.total_cubierto);
+        document.getElementById("cu001-badge-pend").textContent =
+            datos.obligaciones.numero_pendientes;
+        document.getElementById("cu001-badge-cub").textContent =
+            datos.obligaciones.numero_cubiertas;
+    }
+
+    function consultar(id) {
+        if (!id) { limpiar(); return; }
+        cargando.classList.add("activo");
+        fetch("/miembros/api/expediente/" + id + "/", {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+            .then(function (r) {
+                if (!r.ok) { throw new Error("No disponible"); }
+                return r.json();
+            })
+            .then(pintar)
+            .catch(limpiar)
+            .finally(function () { cargando.classList.remove("activo"); });
+    }
+
+    selector.addEventListener("change", function () { consultar(this.value); });
+
+    if (filtro) {
+        filtro.addEventListener("input", function () {
+            const texto = this.value.toLowerCase();
+            Array.from(selector.options).forEach(function (opcion) {
+                if (!opcion.value) { return; }
+                opcion.hidden = opcion.textContent.toLowerCase().indexOf(texto) === -1;
+            });
+        });
+    }
+
+    if (selector.value) { consultar(selector.value); } else { limpiar(); }
+
+    var aviso = document.getElementById("cu001-envio");
+
+    var botonWhatsapp = document.getElementById("btn-whatsapp");
+    if (botonWhatsapp) {
+        botonWhatsapp.addEventListener("click", function () {
+            fetch(this.dataset.url)
+                .then(function (r) { return r.json(); })
+                .then(function (d) { window.open(d.url, "_blank"); });
+        });
+    }
+
+    var botonCorreo = document.getElementById("btn-correo");
+    if (botonCorreo) {
+        botonCorreo.addEventListener("click", function () {
+            var token = document.querySelector("[name=csrfmiddlewaretoken]").value;
+            aviso.textContent = "Enviando...";
+            fetch(this.dataset.url, {
+                method: "POST",
+                headers: { "X-CSRFToken": token }
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (d) { aviso.textContent = d.mensaje; })
+                .catch(function () { aviso.textContent = "No fue posible enviar el recibo."; });
+        });
+    }
+
+})();
+</script>
 
 {% endblock %}

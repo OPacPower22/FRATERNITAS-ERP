@@ -38,6 +38,16 @@ urlpatterns = [
         "tesoreria/",
         include("tesoreria.urls"),
     ),
+
+    path(
+        "miembros/",
+        include("miembros.urls"),
+    ),
+
+    path(
+        "documentos/",
+        include("documentos.urls"),
+    ),
 ]
 
 

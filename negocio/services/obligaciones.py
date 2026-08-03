@@ -22,16 +22,43 @@ def obtener_obligaciones_pendientes(hermano) -> QuerySet:
         .order_by("fecha_vencimiento")
     )
 
-def generar_obligaciones(periodo):
+def _fecha_vencimiento(periodo, dia=10):
+    """
+    Calcula la fecha de vencimiento a partir del periodo.
+
+    Acepta los formatos ``AAAA-MM`` y ``AAAA``.
+    """
+
+    from datetime import date
+
+    partes = str(periodo).strip().split("-")
+
+    anio = int(partes[0])
+    mes = int(partes[1]) if len(partes) > 1 else 12
+
+    return date(anio, mes, dia)
+
+
+def generar_obligaciones(periodo, fecha_vencimiento=None):
+    """
+    Genera las obligaciones del periodo para los Hermanos activos.
+
+    ``periodo`` se expresa como ``AAAA-MM``.
+    """
 
     creadas = 0
+
+    if fecha_vencimiento is None:
+        fecha_vencimiento = _fecha_vencimiento(periodo)
 
     hermanos = Hermano.objects.filter(
         estatus="ACTIVO",
     )
 
-    tarifas = TarifaObligacion.objects.filter(
-        activa=True,
+    tarifas = (
+        TarifaObligacion.objects
+        .filter(estado__in=["ACTIVA", "ACTIVO"])
+        .select_related("concepto")
     )
 
     for hermano in hermanos:
@@ -45,7 +72,7 @@ def generar_obligaciones(periodo):
                 defaults={
                     "importe": tarifa.importe,
                     "saldo_pendiente": tarifa.importe,
-                    "fecha_vencimiento": tarifa.fecha_vencimiento,
+                    "fecha_vencimiento": fecha_vencimiento,
                     "estado": "PENDIENTE",
                 },
             )
@@ -54,4 +81,7 @@ def generar_obligaciones(periodo):
                 creadas += 1
 
     print("\nOBLIGACIONES")
+    print(f"Periodo.....: {periodo}")
     print(f"Creadas.....: {creadas}")
+
+    return creadas

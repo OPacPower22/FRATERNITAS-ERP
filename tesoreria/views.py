@@ -4,7 +4,12 @@ from decimal import Decimal, InvalidOperation
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
+from documentos.services.qr import (
+    construir_url_verificacion,
+    generar_qr_base64,
+)
 from miembros.models import Hermano
+from miembros.services.expediente import obtener_expediente
 from negocio.domain.cu_002_cobro_integral import ejecutar_cobro
 from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
@@ -119,12 +124,31 @@ def emitir_recibo(request):
             if not propuesta.aplicaciones:
                 errores.append("El hermano no tiene obligaciones pendientes.")
 
+    expediente = obtener_expediente(hermano) if hermano else None
+
+    recibo_qr = None
+    recibo_url_verificacion = None
+    recibo_id = None
+
+    if resultado and resultado.exitoso:
+        recibo_modelo = resultado.recibo["recibo"]
+        recibo_id = recibo_modelo.pk
+        recibo_url_verificacion = construir_url_verificacion(
+            recibo_modelo,
+            request,
+        )
+        recibo_qr = generar_qr_base64(recibo_url_verificacion)
+
     return render(
         request,
         "tesoreria/cu001/emitir_recibo.html",
         {
             "hermanos": hermanos,
             "hermano": hermano,
+            "expediente": expediente,
+            "recibo_id": recibo_id,
+            "recibo_qr": recibo_qr,
+            "recibo_url_verificacion": recibo_url_verificacion,
             "obligaciones": obligaciones,
             "propuesta": propuesta,
             "resultado": resultado,

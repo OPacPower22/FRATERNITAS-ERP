@@ -23,6 +23,10 @@ from negocio.services.recibos import (
     emitir_recibo,
 )
 
+from negocio.services.contabilidad import (
+    generar_movimientos,
+)
+
 
 def ejecutar_cobro(
     *,
@@ -69,11 +73,14 @@ def ejecutar_cobro(
         propuesta,
     )
 
+    movimientos = generar_movimientos(pago)
+
     recibo = emitir_recibo(
         pago,
         usuario,
     )
 
+    resultado.movimientos = movimientos
     resultado.pago = pago
     resultado.propuesta = propuesta
     resultado.recibo = recibo
