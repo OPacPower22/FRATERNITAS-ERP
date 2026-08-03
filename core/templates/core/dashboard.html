@@ -194,7 +194,8 @@ Centro de Operaciones{% endblock %}
 
             <div class="col-md-3">
 
-                <button
+                <a
+                    href="{% url 'miembros_directorio' %}"
                     class="btn btn-primary btn-operacion w-100">
 
                     <i class="bi bi-people-fill"></i>
@@ -207,13 +208,14 @@ Centro de Operaciones{% endblock %}
 
                     </small>
 
-                </button>
+                </a>
 
             </div>
 
             <div class="col-md-3">
 
-                <button
+                <a
+                    href="{% url 'cu003_reportes_index' %}"
                     class="btn btn-secondary btn-operacion w-100">
 
                     <i class="bi bi-bar-chart-line-fill"></i>
@@ -226,7 +228,7 @@ Centro de Operaciones{% endblock %}
 
                     </small>
 
-                </button>
+                </a>
 
             </div>
 
