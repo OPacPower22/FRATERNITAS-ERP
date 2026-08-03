@@ -72,6 +72,13 @@ Centro de Operaciones{% endblock %}
 
                         </h2>
 
+                        {% if not periodo_es_actual %}
+                        <small class="text-muted d-block">
+                            Último periodo con operación:
+                            {{ periodo_indicadores|date:"F Y" }}
+                        </small>
+                        {% endif %}
+
                     </div>
 
                     <i class="bi bi-graph-up-arrow fs-1 text-primary"></i>
@@ -105,6 +112,13 @@ Centro de Operaciones{% endblock %}
                             {{ egresos_mes|moneda }}
 
                         </h2>
+
+                        {% if not periodo_es_actual %}
+                        <small class="text-muted d-block">
+                            Último periodo con operación:
+                            {{ periodo_indicadores|date:"F Y" }}
+                        </small>
+                        {% endif %}
 
                     </div>
 

@@ -43,15 +43,31 @@ def sincronizar_catalogos():
 
     catalogos = defaultdict(list)
 
+    # Los encabezados se localizan por nombre y no por posición:
+    # el DMI tiene la columna ORDEN entre DESCRIPCION y ACTIVO,
+    # mientras que la exportación de la web app no la tiene.
+    encabezados = {
+        str(celda).strip().upper(): indice
+        for indice, celda in enumerate(
+            next(hoja.iter_rows(max_row=1, values_only=True))
+        )
+        if celda
+    }
+
+    indice_tipo = encabezados.get("CATALOGO", 0)
+    indice_clave = encabezados.get("CLAVE", 1)
+    indice_descripcion = encabezados.get("DESCRIPCION", 2)
+    indice_activo = encabezados.get("ACTIVO", 3)
+
     for fila in hoja.iter_rows(
         min_row=2,
         values_only=True,
     ):
 
-        tipo = fila[0]
-        clave = fila[1]
-        descripcion = fila[2]
-        activo = fila[3]
+        tipo = fila[indice_tipo]
+        clave = fila[indice_clave]
+        descripcion = fila[indice_descripcion]
+        activo = fila[indice_activo]
 
         if not tipo:
             continue

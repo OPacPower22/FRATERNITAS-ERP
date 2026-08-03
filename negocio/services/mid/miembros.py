@@ -64,9 +64,18 @@ def sincronizar_miembros():
             nombre__iexact=registro["GRADO"]
         ).first()
 
+        # El DMI usa la columna ESTADO; el modelo usa 'estatus'.
+        estado = str(
+            registro.get("ESTADO") or "ACTIVO"
+        ).strip().upper()
+
+        if estado not in dict(Hermano.ESTATUS):
+            estado = "ACTIVO"
+
         _, creado = Hermano.objects.update_or_create(
             numero_control=str(registro["NUMERO_CONTROL"]),
             defaults={
+                "estatus": estado,
                 "nombre": registro["NOMBRE"] or "",
                 "apellido_paterno": registro["APELLIDO_PATERNO"] or "",
                 "apellido_materno": registro["APELLIDO_MATERNO"] or "",

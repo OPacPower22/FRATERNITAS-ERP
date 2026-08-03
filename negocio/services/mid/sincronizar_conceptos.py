@@ -12,12 +12,15 @@ def sincronizar_conceptos(datos):
             registro["descripcion"]
         ).strip()
 
-        activo = (
-            str(
-                registro["activo"]
-            ).strip().upper()
-            == "ACTIVO"
-        )
+        # El DMI usa "ACTIVO" en unos catálogos y "SI" en otros.
+        activo = str(
+            registro["activo"]
+        ).strip().upper() in {
+            "ACTIVO",
+            "SI",
+            "TRUE",
+            "1",
+        }
 
         try:
 
