@@ -32,3 +32,6 @@ Thumbs.db
 
 # Backups
 backups/
+
+# Variables de entorno locales
+.env

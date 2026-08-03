@@ -12,9 +12,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# <-- 2. Inicializar environ
+env = environ.Env()
+
+# <-- 3. Leer el archivo .env que acabamos de crear
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,10 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # En producción defina DJANGO_SECRET_KEY como variable de entorno con un
 # valor largo y aleatorio; nunca lo escriba directamente en este archivo.
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-oo*wjczp$6n(e=^g&ugns*j3z_ao(k0_x)_q(@qfi&%5wcm*)s",
-)
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env.bool('DEBUG', default=False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
