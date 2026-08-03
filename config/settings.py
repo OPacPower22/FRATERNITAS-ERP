@@ -31,12 +31,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # En producción defina DJANGO_SECRET_KEY como variable de entorno con un
 # valor largo y aleatorio; nunca lo escriba directamente en este archivo.
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', default=False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 
 # Application definition
