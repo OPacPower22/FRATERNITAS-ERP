@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "negocio",
     "documentos",
     "contabilidad",
+    "reportes",
 ]
 
 MIDDLEWARE = [

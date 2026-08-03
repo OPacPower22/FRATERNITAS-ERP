@@ -1,0 +1,117 @@
+{% extends "base/base.html" %}
+{% block title %}CU-003 · Reportes{% endblock %}
+{% block content %}
+
+<style>
+    .cu003-nav-card {
+        display: block;
+        height: 100%;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+        border-top: 4px solid var(--cu003-color, var(--vino));
+        padding: 1.75rem 1.6rem;
+        text-decoration: none;
+        color: inherit;
+        transition: .2s ease;
+    }
+    .cu003-nav-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 28px rgba(0, 0, 0, .16);
+        color: inherit;
+    }
+    .cu003-nav-icono {
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--cu003-color, var(--vino));
+        color: #fff;
+        font-size: 1.7rem;
+        margin-bottom: 1.1rem;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, .14);
+    }
+    .cu003-nav-card h4 {
+        font-weight: 700;
+        color: #222;
+        margin-bottom: .5rem;
+    }
+    .cu003-nav-card p {
+        color: #6c757d;
+        font-size: .92rem;
+        min-height: 3.4rem;
+    }
+    .cu003-nav-pie {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+    }
+    .cu003-nav-ir {
+        color: var(--cu003-color, var(--vino));
+        font-weight: 600;
+        font-size: .85rem;
+    }
+    .cu003-nav-card:hover .cu003-nav-ir {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">CU-003 · Reportes</h2>
+        <p class="text-muted mb-0">Información financiera institucional.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">← Dashboard</a>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-4">
+        <a href="{% url 'cu003_catalogo_cuentas' %}" class="cu003-nav-card" style="--cu003-color:#0d6efd;">
+            <div class="cu003-nav-icono"><i class="bi bi-diagram-3"></i></div>
+            <h4>Catálogo de Cuentas</h4>
+            <p>Cuentas contables activas y su clasificación institucional: Activo, Pasivo, Patrimonio, Ingreso y Gasto.</p>
+            <div class="cu003-nav-pie">
+                <span class="badge text-bg-primary">{{ total_cuentas }} cuentas</span>
+                <span class="cu003-nav-ir">Ver catálogo <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{% url 'cu003_libro_diario' %}" class="cu003-nav-card" style="--cu003-color:#b5122b;">
+            <div class="cu003-nav-icono"><i class="bi bi-journal-text"></i></div>
+            <h4>Libro Diario</h4>
+            <p>Todas las pólizas contables generadas, en orden cronológico, con el detalle de Debe y Haber.</p>
+            <div class="cu003-nav-pie">
+                <span class="badge" style="background:#b5122b;">{{ total_polizas }} pólizas</span>
+                <span class="cu003-nav-ir">Ver libro <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a href="{% url 'cu003_libro_mayor' %}" class="cu003-nav-card" style="--cu003-color:#198754;">
+            <div class="cu003-nav-icono"><i class="bi bi-journal-bookmark"></i></div>
+            <h4>Libro Mayor</h4>
+            <p>Balanza de comprobación y el detalle de movimientos por cuenta contable, con saldo acumulado.</p>
+            <div class="cu003-nav-pie">
+                <span class="badge text-bg-success">Balanza</span>
+                <span class="cu003-nav-ir">Ver libro <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<div class="alert alert-secondary mt-4 small">
+    <i class="bi bi-info-circle"></i>
+    Los estados financieros (Estado de Situación Financiera, Estado de Actividades, Flujo de Efectivo y Cambios en el Patrimonio) y los reportes periódicos con vista previa, PDF y envío se incorporarán en una siguiente fase sobre este mismo catálogo de cuentas.
+</div>
+
+{% endblock %}
