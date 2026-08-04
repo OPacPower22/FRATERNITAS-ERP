@@ -1,21 +1,30 @@
 /* ====================================================================
-   Ajustes táctiles para iPad.
+   Ajustes táctiles · iPad de 13 pulgadas
 
-   Se carga DESPUÉS de style.css y sólo actúa dentro de consultas de
-   medios, de modo que el diseño en computadora queda intacto.
+   Medidas del equipo objetivo:
+       Horizontal ... 1376 x 1032 px CSS  (Pro M4)
+                      1366 x 1024 px CSS  (Air M2)
+       Vertical ..... 1032 x 1376 px CSS
+                      1024 x 1366 px CSS
+
+   Se carga DESPUÉS de style.css y todo actúa dentro de consultas de
+   medios con 'pointer: coarse', de modo que el diseño en computadora
+   queda intacto.
    ==================================================================== */
 
+
 /* --------------------------------------------------------------------
-   1. Áreas táctiles
-   Apple recomienda 44 puntos como mínimo para cualquier control.
+   1. Áreas táctiles · cualquier dispositivo con dedo
    -------------------------------------------------------------------- */
 
 @media (pointer: coarse) {
 
+    /* Apple recomienda 44 puntos como mínimo para cualquier control. */
     .btn,
     .form-select,
     .form-control,
-    .nav-link {
+    .nav-link,
+    .page-link {
         min-height: 44px;
     }
 
@@ -24,59 +33,119 @@
         padding-bottom: .6rem;
     }
 
-    /* Safari hace zoom automático al enfocar un campo cuya letra
-       mide menos de 16 px. Fijarla evita el salto de la pantalla. */
+    /* Safari hace zoom automático al enfocar un campo cuya letra mide
+       menos de 16 px, y la pantalla salta. Fijarla lo evita. */
     .form-control,
     .form-select,
-    textarea {
+    textarea,
+    input {
         font-size: 16px;
     }
 
-    /* Filas de tabla más holgadas para acertar con el dedo. */
     .table td,
     .table th {
         padding-top: .6rem;
         padding-bottom: .6rem;
     }
 
-    /* Inercia de desplazamiento en los paneles con scroll. */
     .cu001-scroll {
         -webkit-overflow-scrolling: touch;
     }
+
+    /* Quita el resaltado azul al tocar botones y enlaces. */
+    .btn,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
 }
 
+
 /* --------------------------------------------------------------------
-   2. iPad en horizontal (1024 a 1366 px)
-   Las tres columnas del CU-001 caben, pero apretadas. Se reduce el
-   espaciado interior para ganar ancho útil.
+   2. iPad 13" EN VERTICAL  ·  1024 a 1032 px
+   Bootstrap mantiene tres columnas porque el ancho supera los 992 px
+   del umbral 'lg'. Tres columnas de 330 px son inservibles, así que
+   se reacomoda a dos arriba y una abajo.
+
+   El selector ':has()' evita tener que tocar la plantilla: la regla
+   sólo alcanza a la fila que contiene el avatar del CU-001.
+   Safari 16.4 en adelante lo admite.
    -------------------------------------------------------------------- */
 
-@media (min-width: 992px) and (max-width: 1400px) and (pointer: coarse) {
+@media (min-width: 992px) and (max-width: 1199.98px) and (pointer: coarse) {
 
-    .card-body {
-        padding: 1rem .85rem;
+    .row:has(#cu001-avatar) > .col-lg-4 {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
 
-    .cu001-dato th {
-        width: 42%;
-        font-size: .9rem;
+    /* La captura primero: es lo que más se usa. */
+    .row:has(#cu001-avatar) > .col-lg-4:nth-child(2) {
+        order: 1;
+    }
+
+    .row:has(#cu001-avatar) > .col-lg-4:nth-child(1) {
+        order: 2;
+    }
+
+    /* El recibo va completo al pie, donde el QR se ve grande. */
+    .row:has(#cu001-avatar) > .col-lg-4:nth-child(3) {
+        order: 3;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 
     .cu001-scroll {
-        max-height: 320px;
+        max-height: 420px;
     }
 
-    /* El selector de Hermanos gana altura: es el control que más
-       se usa y el que más se agradece grande. */
     #hermano {
-        min-height: 240px;
+        min-height: 300px;
+    }
+
+    /* El teclado numérico ocupa media pantalla: el importe debe
+       leerse sin acercar la vista. */
+    #importe {
+        font-size: 1.6rem;
+        min-height: 56px;
     }
 }
 
+
 /* --------------------------------------------------------------------
-   3. iPad en vertical (768 a 991 px)
-   Bootstrap ya apila las columnas. Se les da un orden útil: primero
-   la captura, luego el expediente, al final el recibo.
+   3. iPad 13" EN HORIZONTAL  ·  1366 a 1376 px
+   Las tres columnas caben con unos 430 px cada una. Se recorta el
+   espaciado interior para ganar ancho útil.
+   -------------------------------------------------------------------- */
+
+@media (min-width: 1200px) and (max-width: 1440px) and (pointer: coarse) {
+
+    .card-body {
+        padding: 1rem .9rem;
+    }
+
+    .cu001-dato th {
+        width: 44%;
+        font-size: .92rem;
+    }
+
+    .cu001-scroll {
+        max-height: 340px;
+    }
+
+    #hermano {
+        min-height: 260px;
+    }
+
+    #importe {
+        font-size: 1.4rem;
+    }
+}
+
+
+/* --------------------------------------------------------------------
+   4. Split View y Slide Over
+   Al partir la pantalla con otra aplicación, el ancho baja a unos
+   500 px. Bootstrap ya apila; sólo se sueltan las alturas fijas.
    -------------------------------------------------------------------- */
 
 @media (max-width: 991.98px) and (pointer: coarse) {
@@ -85,29 +154,33 @@
         max-height: none;
     }
 
-    /* El teclado numérico ocupa media pantalla: conviene que el
-       importe quede visible al enfocarlo. */
-    #importe {
-        font-size: 1.5rem;
+    #hermano {
+        min-height: 200px;
     }
 }
 
+
 /* --------------------------------------------------------------------
-   4. Impresión desde el iPad
-   Oculta la navegación para que "Imprimir" produzca una hoja limpia.
+   5. Impresión desde el iPad
    -------------------------------------------------------------------- */
 
 @media print {
 
     nav,
-    .btn,
     header,
-    footer {
+    footer,
+    .btn,
+    .nav-tabs {
         display: none !important;
     }
 
     .card {
         border: none !important;
         box-shadow: none !important;
+    }
+
+    .cu001-scroll {
+        max-height: none !important;
+        overflow: visible !important;
     }
 }

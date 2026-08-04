@@ -22,3 +22,30 @@
 
     {# Ajustes táctiles: se cargan al final para no alterar el diseño --- #}
     <link rel="stylesheet" href="{% static 'css/tableta.css' %}">
+
+
+{# ================================================================ #}
+{# NOTA sobre el modo pantalla completa en iPadOS                    #}
+{#                                                                   #}
+{# Al abrir desde la pantalla de inicio, Safari corre en modo        #}
+{# 'standalone'. Los enlaces con target="_blank" salen de la         #}
+{# aplicación y abren Safari aparte, lo que rompe la sensación de    #}
+{# app nativa al ver el PDF del recibo.                              #}
+{#                                                                   #}
+{# El fragmento de abajo mantiene el PDF dentro de la aplicación     #}
+{# cuando corre en pantalla completa, y conserva la pestaña nueva    #}
+{# cuando se usa desde el navegador de la computadora.               #}
+{# Pegar antes de </body> en base.html.                              #}
+{# ================================================================ #}
+
+<script>
+(function () {
+    if (!window.navigator.standalone) { return; }
+    document.addEventListener("click", function (evento) {
+        const enlace = evento.target.closest('a[target="_blank"]');
+        if (!enlace) { return; }
+        evento.preventDefault();
+        window.location.href = enlace.href;
+    });
+})();
+</script>
