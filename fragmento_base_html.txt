@@ -1,0 +1,24 @@
+{# ================================================================ #}
+{# Pegar dentro de <head> en templates/base/base.html               #}
+{# Junto a las demás etiquetas <link>. No sustituye nada existente. #}
+{# ================================================================ #}
+
+    {# --- Aplicación instalable en la pantalla de inicio del iPad --- #}
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta name="theme-color" content="#8B0000">
+
+    {# Safari en iPadOS ignora el manifest: necesita sus propias etiquetas #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Tesorería">
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{% static 'img/icono-180.png' %}">
+
+    {# Evita que Safari haga zoom al enfocar un campo, sin bloquear
+       el zoom manual con dos dedos (bloquearlo sería un problema de
+       accesibilidad). #}
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    {# Ajustes táctiles: se cargan al final para no alterar el diseño --- #}
+    <link rel="stylesheet" href="{% static 'css/tableta.css' %}">

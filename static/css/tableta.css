@@ -1,0 +1,113 @@
+/* ====================================================================
+   Ajustes táctiles para iPad.
+
+   Se carga DESPUÉS de style.css y sólo actúa dentro de consultas de
+   medios, de modo que el diseño en computadora queda intacto.
+   ==================================================================== */
+
+/* --------------------------------------------------------------------
+   1. Áreas táctiles
+   Apple recomienda 44 puntos como mínimo para cualquier control.
+   -------------------------------------------------------------------- */
+
+@media (pointer: coarse) {
+
+    .btn,
+    .form-select,
+    .form-control,
+    .nav-link {
+        min-height: 44px;
+    }
+
+    .btn {
+        padding-top: .6rem;
+        padding-bottom: .6rem;
+    }
+
+    /* Safari hace zoom automático al enfocar un campo cuya letra
+       mide menos de 16 px. Fijarla evita el salto de la pantalla. */
+    .form-control,
+    .form-select,
+    textarea {
+        font-size: 16px;
+    }
+
+    /* Filas de tabla más holgadas para acertar con el dedo. */
+    .table td,
+    .table th {
+        padding-top: .6rem;
+        padding-bottom: .6rem;
+    }
+
+    /* Inercia de desplazamiento en los paneles con scroll. */
+    .cu001-scroll {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* --------------------------------------------------------------------
+   2. iPad en horizontal (1024 a 1366 px)
+   Las tres columnas del CU-001 caben, pero apretadas. Se reduce el
+   espaciado interior para ganar ancho útil.
+   -------------------------------------------------------------------- */
+
+@media (min-width: 992px) and (max-width: 1400px) and (pointer: coarse) {
+
+    .card-body {
+        padding: 1rem .85rem;
+    }
+
+    .cu001-dato th {
+        width: 42%;
+        font-size: .9rem;
+    }
+
+    .cu001-scroll {
+        max-height: 320px;
+    }
+
+    /* El selector de Hermanos gana altura: es el control que más
+       se usa y el que más se agradece grande. */
+    #hermano {
+        min-height: 240px;
+    }
+}
+
+/* --------------------------------------------------------------------
+   3. iPad en vertical (768 a 991 px)
+   Bootstrap ya apila las columnas. Se les da un orden útil: primero
+   la captura, luego el expediente, al final el recibo.
+   -------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) and (pointer: coarse) {
+
+    .cu001-scroll {
+        max-height: none;
+    }
+
+    /* El teclado numérico ocupa media pantalla: conviene que el
+       importe quede visible al enfocarlo. */
+    #importe {
+        font-size: 1.5rem;
+    }
+}
+
+/* --------------------------------------------------------------------
+   4. Impresión desde el iPad
+   Oculta la navegación para que "Imprimir" produzca una hoja limpia.
+   -------------------------------------------------------------------- */
+
+@media print {
+
+    nav,
+    .btn,
+    header,
+    footer {
+        display: none !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
