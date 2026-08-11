@@ -30,7 +30,7 @@ from negocio.models import AplicacionPago, Obligacion, Pago
 
 PREFIJO_REFERENCIA = "APERTURA-"
 
-CONCEPTO_CAPITA = "CAPITA"
+CONCEPTO_CAPITA = "CUOTA_ORD"
 
 PERIODO_ANTERIOR = "SALDO-ANTERIOR"
 

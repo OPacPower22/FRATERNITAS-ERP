@@ -50,7 +50,7 @@ COLUMNA_NOMBRE = 1
 
 PREFIJO_REFERENCIA = "HIST-"
 
-CONCEPTO_CAPITA = "CAPITA"
+CONCEPTO_CAPITA = "CUOTA_ORD"
 
 DIA_VENCIMIENTO = 10
 
@@ -313,6 +313,23 @@ def sembrar(
         }
 
         for periodo in sorted(periodos):
+
+            obligacion_existente = Obligacion.objects.filter(
+                hermano=hermano,
+                concepto=concepto,
+                periodo=periodo,
+            ).first()
+
+            if obligacion_existente is not None and (
+                obligacion_existente.aplicacionpago_set.exclude(
+                    pago__referencia__startswith=PREFIJO_REFERENCIA,
+                ).exists()
+            ):
+                # Ya está cubierta por un pago real (reconstrucción de
+                # junio/julio con folio físico). No se toca: pisarla con
+                # la lectura binaria de la matriz duplicaría el ingreso
+                # y perdería el prorrateo real ya aplicado.
+                continue
 
             recibo = cubiertos.get(periodo)
 
