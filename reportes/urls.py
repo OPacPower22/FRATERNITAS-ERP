@@ -24,4 +24,14 @@ urlpatterns = [
         views.libro_mayor,
         name="cu003_libro_mayor",
     ),
+    path(
+        "informe-mensual/",
+        views.informe_mensual,
+        name="cu003_informe_mensual",
+    ),
+    path(
+        "informe-mensual/pdf/",
+        views.informe_mensual_pdf,
+        name="cu003_informe_mensual_pdf",
+    ),
 ]

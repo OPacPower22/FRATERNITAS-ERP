@@ -1,0 +1,145 @@
+{% extends "base/base.html" %}
+{% load moneda %}
+{% block title %}CU-003 · Informe Mensual{% endblock %}
+{% block content %}
+
+<style>
+    .cu003-informe-header {
+        border: 2px solid #222;
+        border-radius: .4rem;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        margin-bottom: 1.75rem;
+    }
+    .cu003-informe-header h3 {
+        font-weight: 800;
+        letter-spacing: .04em;
+        margin: .35rem 0 0;
+    }
+    .cu003-fondo-card {
+        border: 1px solid #ccc;
+        border-radius: .4rem;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .cu003-fondo-titulo {
+        background: #b5122b;
+        color: #fff;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: .05em;
+        padding: .6rem;
+    }
+    .cu003-fondo-tabla th {
+        font-size: .78rem;
+        text-align: center;
+        color: #6c757d;
+        background: #f5f5f5;
+        border-bottom: 1px solid #ccc;
+    }
+    .cu003-fondo-tabla td {
+        text-align: center;
+        font-weight: 600;
+        vertical-align: middle;
+    }
+    .cu003-celda-captura { background-color: #ffff99; }
+    .cu003-celda-saldo { font-weight: 800; }
+    .cu003-suma-total {
+        border: 2px solid #b5122b;
+        border-radius: .4rem;
+        background: #f9f2f3;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 800;
+        font-size: 1.15rem;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h2 class="mb-1">Informe Mensual de Resultados Financieros</h2>
+        <p class="text-muted mb-0">Ingreso, egreso y saldo por fondo, mes a mes.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'cu003_reportes_index' %}" class="btn btn-outline-primary">← Reportes</a>
+        <a href="{% url 'cu003_informe_mensual_pdf' %}?anio={{ informe.anio }}&mes={{ informe.mes }}"
+           target="_blank" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Ver PDF
+        </a>
+        <a href="{% url 'cu003_informe_mensual_pdf' %}?anio={{ informe.anio }}&mes={{ informe.mes }}&descargar=1"
+           class="btn btn-danger">
+            <i class="bi bi-download"></i> Descargar
+        </a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-auto">
+        <label class="form-label small text-muted mb-0">Mes</label>
+        <select name="mes" class="form-select" onchange="this.form.submit()">
+            {% for numero, nombre in meses %}
+            <option value="{{ numero }}" {% if numero == informe.mes %}selected{% endif %}>{{ nombre|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label small text-muted mb-0">Año</label>
+        <select name="anio" class="form-select" onchange="this.form.submit()">
+            {% for anio_disponible in anios %}
+            <option value="{{ anio_disponible }}" {% if anio_disponible == informe.anio %}selected{% endif %}>{{ anio_disponible }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<div class="cu003-informe-header">
+    <div class="row">
+        <div class="col text-start">
+            <span class="text-muted small">MIEMBROS ACTIVOS</span><br>
+            <strong>{{ informe.miembros_activos }}</strong>
+        </div>
+        <div class="col">
+            <span class="text-muted small">INFORME MENSUAL DE RESULTADOS FINANCIEROS</span>
+            <h3>{{ informe.etiqueta_periodo }}</h3>
+        </div>
+        <div class="col text-end">
+            <span class="text-muted small">FECHA</span><br>
+            <strong>{{ informe.etiqueta_periodo }}</strong>
+        </div>
+    </div>
+</div>
+
+{% for fondo in informe.fondos %}
+<div class="cu003-fondo-card shadow-sm">
+    <div class="cu003-fondo-titulo">{{ fondo.etiqueta }}</div>
+    <table class="table cu003-fondo-tabla mb-0">
+        <thead>
+            <tr>
+                <th>INGRESO</th>
+                <th>MES ANT.</th>
+                <th>SUB TOTAL</th>
+                <th>EGRESO</th>
+                <th>SALDO TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="cu003-celda-captura">{{ fondo.ingreso|moneda }}</td>
+                <td>{{ fondo.mes_anterior|moneda }}</td>
+                <td>{{ fondo.subtotal|moneda }}</td>
+                <td class="cu003-celda-captura">{{ fondo.egreso|moneda }}</td>
+                <td class="cu003-celda-saldo {% if fondo.saldo >= 0 %}text-success{% else %}text-danger{% endif %}">{{ fondo.saldo|moneda }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+
+<div class="cu003-suma-total">
+    <span>SUMA TOTAL</span>
+    <span class="{% if informe.suma_total >= 0 %}text-success{% else %}text-danger{% endif %}">{{ informe.suma_total|moneda }}</span>
+</div>
+
+{% endblock %}

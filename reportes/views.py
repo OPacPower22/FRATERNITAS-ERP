@@ -2,9 +2,20 @@ from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 
 from contabilidad.models import Cuenta, PartidaPoliza, Poliza
+from reportes.services.informe_mensual_pdf import (
+    generar_informe_mensual_pdf,
+    nombre_archivo,
+)
+from tesoreria.services.informe_mensual import (
+    MESES,
+    anios_disponibles,
+    calcular_informe_mensual,
+)
 
 
 GRUPOS_TIPO_CUENTA = [
@@ -147,3 +158,58 @@ def libro_mayor(request):
             "movimientos": movimientos,
         },
     )
+
+
+def _periodo_seleccionado(request):
+
+    hoy = timezone.localdate()
+
+    anio = int(request.GET.get("anio") or hoy.year)
+    mes = int(request.GET.get("mes") or hoy.month)
+
+    return anio, mes
+
+
+@login_required
+def informe_mensual(request):
+    """
+    Informe Mensual de Resultados Financieros: ingreso, egreso y
+    saldo por fondo (Cápitas, Aniversario, Saco de Beneficencia,
+    Taller Benito Juárez y Otros), en el formato histórico del
+    Tesorero.
+    """
+
+    anio, mes = _periodo_seleccionado(request)
+
+    informe = calcular_informe_mensual(anio, mes)
+
+    return render(
+        request,
+        "reportes/cu003/informe_mensual.html",
+        {
+            "informe": informe,
+            "anios": anios_disponibles() or [timezone.localdate().year],
+            "meses": MESES.items(),
+        },
+    )
+
+
+@login_required
+def informe_mensual_pdf(request):
+    """Descarga o previsualiza el Informe Mensual en PDF."""
+
+    anio, mes = _periodo_seleccionado(request)
+
+    informe = calcular_informe_mensual(anio, mes)
+
+    contenido = generar_informe_mensual_pdf(informe)
+
+    respuesta = HttpResponse(contenido, content_type="application/pdf")
+
+    disposicion = "attachment" if request.GET.get("descargar") else "inline"
+
+    respuesta["Content-Disposition"] = (
+        f'{disposicion}; filename="{nombre_archivo(informe)}"'
+    )
+
+    return respuesta
