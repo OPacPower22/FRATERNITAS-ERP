@@ -18,12 +18,6 @@
         filter: grayscale(1);
         opacity: .55;
     }
-    .cu001-dato th {
-        width: 45%;
-        font-weight: 600;
-        color: #6c757d;
-        white-space: nowrap;
-    }
     .cu001-scroll { max-height: 260px; overflow-y: auto; }
     .cu001-vacio { color: #6c757d; font-size: .9rem; }
     #cu001-cargando { display: none; }
@@ -87,7 +81,7 @@
                 </div>
 
                 <ul class="nav nav-tabs nav-fill" role="tablist">
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bio" type="button">Datos</button></li>
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bio" type="button">Reparto</button></li>
                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pend" type="button">Pendientes <span id="cu001-badge-pend" class="badge text-bg-danger">0</span></button></li>
                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cub" type="button">Cubiertas <span id="cu001-badge-cub" class="badge text-bg-success">0</span></button></li>
                 </ul>
@@ -95,21 +89,38 @@
                 <div class="tab-content pt-3">
 
                     <div class="tab-pane fade show active" id="tab-bio">
-                        <table class="table table-sm cu001-dato mb-0">
-                            <tr><th>No. control</th><td id="bio-numero_control">—</td></tr>
-                            <tr><th>Grado</th><td id="bio-grado">—</td></tr>
-                            <tr><th>Estatus</th><td id="bio-estatus">—</td></tr>
-                            <tr><th>Tipo de ingreso</th><td id="bio-tipo_ingreso">—</td></tr>
-                            <tr><th>Fecha de nacimiento</th><td id="bio-fecha_nacimiento">—</td></tr>
-                            <tr><th>Lugar de nacimiento</th><td id="bio-lugar_nacimiento">—</td></tr>
-                            <tr><th>Profesión</th><td id="bio-profesion">—</td></tr>
-                            <tr><th>Iniciación</th><td id="bio-fecha_iniciacion">—</td></tr>
-                            <tr><th>Aumento</th><td id="bio-fecha_aumento">—</td></tr>
-                            <tr><th>Exaltación</th><td id="bio-fecha_exaltacion">—</td></tr>
-                            <tr><th>Logia de procedencia</th><td id="bio-logia_procedencia">—</td></tr>
-                            <tr><th>Celular</th><td id="bio-celular">—</td></tr>
-                            <tr><th>Correo</th><td id="bio-correo">—</td></tr>
-                        </table>
+                        {% if distribucion %}
+                        <div class="mb-2">
+                            <span class="badge {% if distribucion_es_referencia %}text-bg-secondary{% else %}text-bg-success{% endif %}">
+                                {% if distribucion_es_referencia %}Referencia · cápita completa vigente{% else %}Reparto de esta aplicación{% endif %}
+                            </span>
+                        </div>
+                        <div class="cu001-scroll">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead><tr><th>Concepto</th><th class="text-end">Importe</th></tr></thead>
+                                <tbody>
+                                    {% regroup distribucion.filas by grupo as grupos_reparto %}
+                                    {% for grupo in grupos_reparto %}
+                                    <tr class="table-light"><th colspan="2">{% if grupo.grouper == "GLUM" %}GLUM{% else %}Local{% endif %}</th></tr>
+                                    {% for fila in grupo.list %}
+                                    <tr><td>{{ fila.concepto }}</td><td class="text-end">${{ fila.importe|floatformat:2 }}</td></tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2 small text-muted">
+                            <span>Total GLUM</span><span>${{ distribucion.total_glum|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Total Local</span><span>${{ distribucion.total_local|floatformat:2 }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2 fw-bold">
+                            <span>Total</span><span>${{ distribucion.total|floatformat:2 }}</span>
+                        </div>
+                        {% else %}
+                        <p class="cu001-vacio mb-0">No hay una Cuota Ordinaria configurada para mostrar el reparto.</p>
+                        {% endif %}
                     </div>
 
                     <div class="tab-pane fade" id="tab-pend">
@@ -373,13 +384,6 @@
     const avatar   = document.getElementById("cu001-avatar");
     const escudo   = "{% static 'img/escudo.png' %}";
 
-    const CAMPOS_BIO = [
-        "numero_control", "grado", "estatus", "tipo_ingreso",
-        "fecha_nacimiento", "lugar_nacimiento", "profesion",
-        "fecha_iniciacion", "fecha_aumento", "fecha_exaltacion",
-        "logia_procedencia", "celular", "correo"
-    ];
-
     function moneda(valor) {
         return "$" + Number(valor).toLocaleString("en-US", {
             minimumFractionDigits: 2,
@@ -397,9 +401,6 @@
         avatar.classList.add("es-sombra");
         document.getElementById("cu001-nombre").textContent = "—";
         document.getElementById("cu001-simbolico").textContent = "";
-        CAMPOS_BIO.forEach(function (campo) {
-            document.getElementById("bio-" + campo).textContent = "—";
-        });
         vaciar("cu001-pendientes", "Seleccione un Hermano.");
         vaciar("cu001-cubiertas", "Seleccione un Hermano.");
         document.getElementById("cu001-total-pendiente").textContent = "$0.00";
@@ -427,11 +428,6 @@
             datos.biografia.nombre_completo;
         document.getElementById("cu001-simbolico").textContent =
             datos.biografia.nombre_simbolico;
-
-        CAMPOS_BIO.forEach(function (campo) {
-            document.getElementById("bio-" + campo).textContent =
-                datos.biografia[campo] || "—";
-        });
 
         pintarObligaciones("cu001-pendientes",
             datos.obligaciones.pendientes, "saldo_pendiente",

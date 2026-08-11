@@ -17,6 +17,10 @@ from miembros.services.expediente import obtener_expediente
 from negocio.domain.cu_002_cobro_integral import ejecutar_cobro
 from negocio.models import Obligacion
 from negocio.services.aplicacion import calcular_propuesta
+from negocio.services.contabilidad import (
+    calcular_distribucion_institucional,
+    distribucion_referencia_cuota_actual,
+)
 from negocio.services.dashboard import obtener_indicadores
 from negocio.services.egresos import obtener_saldos
 
@@ -183,6 +187,12 @@ def emitir_recibo(request):
         )
         recibo_qr = generar_qr_base64(recibo_url_verificacion)
 
+    distribucion = None
+    if propuesta and propuesta.aplicaciones:
+        distribucion = calcular_distribucion_institucional(propuesta.aplicaciones)
+    if distribucion is None:
+        distribucion = distribucion_referencia_cuota_actual()
+
     vista_previa = None
     if propuesta and propuesta.aplicaciones and not (resultado and resultado.exitoso):
         vista_previa = {
@@ -206,6 +216,8 @@ def emitir_recibo(request):
             "recibo_url_verificacion": recibo_url_verificacion,
             "obligaciones": obligaciones,
             "propuesta": propuesta,
+            "distribucion": distribucion,
+            "distribucion_es_referencia": propuesta is None,
             "vista_previa": vista_previa,
             "resultado": resultado,
             "errores": errores,
