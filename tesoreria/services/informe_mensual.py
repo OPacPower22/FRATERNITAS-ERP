@@ -52,13 +52,13 @@ MAPA_CONCEPTO_FONDO = {
     "APORTACION_FRATERNIDAD": ANIVERSARIO,
     "SACO_BENEFICENCIA": SACO_BENEFICENCIA,
     "APORTACION_AJEF": TALLER_BJ,
-    # Saldo de apertura (enero-mayo 2026, no reimportado en detalle):
-    # negocio.services.apertura_tesoreria.
-    "APERTURA_CAPITAS": CAPITAS,
-    "APERTURA_ANIVERSARIO": ANIVERSARIO,
-    "APERTURA_SACO_BENEFICENCIA": SACO_BENEFICENCIA,
-    "APERTURA_TALLER_BJ": TALLER_BJ,
-    "APERTURA_OTROS": OTROS,
+    # Histórico mensual consolidado (enero-mayo 2026, no reimportado
+    # en detalle línea por línea): negocio.services.apertura_tesoreria.
+    "HISTORICO_CAPITAS": CAPITAS,
+    "HISTORICO_ANIVERSARIO": ANIVERSARIO,
+    "HISTORICO_SACO_BENEFICENCIA": SACO_BENEFICENCIA,
+    "HISTORICO_TALLER_BJ": TALLER_BJ,
+    "HISTORICO_OTROS": OTROS,
 }
 
 MESES = {
